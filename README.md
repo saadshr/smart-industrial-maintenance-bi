@@ -6,9 +6,9 @@ Smart Industrial Maintenance BI est un projet académique de Business Intelligen
 
 Le projet s'appuie sur le jeu de données réel **MetroPT-3 Dataset**, collecté à partir d'un compresseur d'air installé dans un train de métro portugais. Il s'agit donc d'une étude de cas du secteur ferroviaire portugais, et non de données collectées au Maroc. Les méthodes analytiques développées ont vocation à fournir des enseignements transposables aux environnements industriels, notamment marocains.
 
-> **État du projet — Audit du dataset réalisé**
+> **État du projet - Audit et modèle dimensionnel conçus**
 >
-> Le dépôt contient la documentation du projet et les livrables de compréhension du dataset. L'audit local du CSV officiel a été exécuté avec pandas en lecture par blocs. Aucun pipeline ETL, rapport Power BI, mesure DAX, capture d'écran ou jeu de données dérivé n'a encore été implémenté.
+> Le dépôt contient la documentation du projet, l'audit local du CSV officiel et la conception du modèle dimensionnel. Aucun pipeline ETL, rapport Power BI, mesure DAX, capture d'écran ou jeu de données dérivé n'a encore été implémenté.
 
 ## Contexte industriel et problématique métier
 
@@ -85,7 +85,7 @@ L'architecture préservera la traçabilité des sources, distinguera les observa
 
 ## Approche de modélisation multidimensionnelle
 
-Le modèle cible est un schéma en étoile ou une petite constellation, à confirmer après le profilage des sources et la définition des grains.
+Le modèle conceptuel recommandé est une constellation minimale composée de deux faits de grains distincts et de dimensions temporelles conformes. Son implémentation technique reste à réaliser après validation académique.
 
 ### Faits et dimensions candidates — Prévu
 
@@ -131,10 +131,11 @@ Toutes les pages ci-dessous sont **Prévues** et n'existent pas encore sous la f
 
 - [x] Créer le dépôt GitHub et établir la base documentaire initiale.
 - [x] Documenter le périmètre du projet, l'attribution des sources et les limites actuelles.
-- [ ] Auditer le schéma MetroPT-3, les timestamps, les types de signaux, les valeurs manquantes et les doublons.
-- [ ] Acquérir et enregistrer les fichiers sources officiels et les rapports externes des périodes de défaillance.
-- [ ] Définir le glossaire métier, le dictionnaire de données et les spécifications des KPI.
-- [ ] Confirmer les grains des tables de faits, les dimensions, les hiérarchies et la matrice en bus.
+- [x] Auditer le schéma MetroPT-3, les timestamps, les types de signaux, les valeurs manquantes et les doublons.
+- [x] Acquérir et enregistrer localement les fichiers sources officiels et les rapports externes des périodes de défaillance.
+- [x] Définir le glossaire métier, le dictionnaire de données et les spécifications initiales des KPI.
+- [x] Confirmer les grains des tables de faits, les dimensions, les hiérarchies et la matrice en bus.
+- [x] Documenter le modèle dimensionnel recommandé et ses compromis.
 - [ ] Implémenter et documenter les transformations Power Query / M.
 - [ ] Ajouter des contrôles Python optionnels de la qualité des données s'ils présentent une valeur ajoutée.
 - [ ] Construire le modèle sémantique Power BI et valider les relations.
@@ -155,15 +156,19 @@ smart-industrial-maintenance-bi/
 ├── docs/
     ├── data_audit.md
     └── data_dictionary.md
-└── scripts/
+├── scripts/
     └── audit_data.py
+└── model/
+    ├── dimensional_model.md
+    ├── bus_matrix.md
+    └── grain_and_measures.md
 ~~~
 
 Le répertoire `data/raw/` est réservé aux téléchargements locaux et ignoré par Git. Les futurs répertoires et fichiers ne sont volontairement pas présentés comme des artefacts existants. Leur organisation finale sera documentée ici lorsqu'ils auront effectivement été créés et vérifiés.
 
 ## Installation et reproduction
 
-**État actuel : audit local réalisé.** Le script `scripts/audit_data.py` exécute l'audit en lecture par blocs sur les fichiers locaux. Les dépendances Python et la commande exacte d'exécution seront documentées après validation de l'audit ; aucune procédure d'installation Power BI ou de reproduction complète n'est encore revendiquée.
+**État actuel : audit local et conception dimensionnelle réalisés.** Le script `scripts/audit_data.py` exécute l'audit en lecture par blocs sur les fichiers locaux. Les documents `model/` décrivent le grain, les faits, les dimensions, la matrice en bus et les mesures candidates. Aucune procédure d'installation Power BI ou de reproduction complète n'est encore revendiquée.
 
 Les instructions de reproduction seront ajoutées uniquement lorsque les fichiers sources concernés, la logique de transformation, les artefacts de reporting et la procédure de validation auront été implémentés et testés.
 
