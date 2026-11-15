@@ -6,9 +6,9 @@ Smart Industrial Maintenance BI est un projet académique de Business Intelligen
 
 Le projet s'appuie sur le jeu de données réel **MetroPT-3 Dataset**, collecté à partir d'un compresseur d'air installé dans un train de métro portugais. Il s'agit donc d'une étude de cas du secteur ferroviaire portugais, et non de données collectées au Maroc. Les méthodes analytiques développées ont vocation à fournir des enseignements transposables aux environnements industriels, notamment marocains.
 
-> **État du projet — Prévu**
+> **État du projet — Audit du dataset réalisé**
 >
-> Le dépôt contient actuellement uniquement de la documentation projet. Aucun pipeline ETL, rapport Power BI, mesure DAX, résultat d'analyse, capture d'écran ou jeu de données dérivé n'a encore été implémenté dans ce dépôt.
+> Le dépôt contient la documentation du projet et les livrables de compréhension du dataset. L'audit local du CSV officiel a été exécuté avec pandas en lecture par blocs. Aucun pipeline ETL, rapport Power BI, mesure DAX, capture d'écran ou jeu de données dérivé n'a encore été implémenté.
 
 ## Contexte industriel et problématique métier
 
@@ -145,20 +145,25 @@ Toutes les pages ci-dessous sont **Prévues** et n'existent pas encore sous la f
 
 ## Organisation du dépôt
 
-Le dépôt contient actuellement uniquement les fichiers suivis suivants :
+Le dépôt contient actuellement les fichiers suivis suivants :
 
 ~~~text
 smart-industrial-maintenance-bi/
 ├── .gitignore
 ├── LICENSE
-└── README.md
+├── README.md
+├── docs/
+    ├── data_audit.md
+    └── data_dictionary.md
+└── scripts/
+    └── audit_data.py
 ~~~
 
-Les futurs répertoires et fichiers ne sont volontairement pas présentés comme des artefacts existants. Leur organisation finale sera documentée ici lorsqu'ils auront effectivement été créés et vérifiés.
+Le répertoire `data/raw/` est réservé aux téléchargements locaux et ignoré par Git. Les futurs répertoires et fichiers ne sont volontairement pas présentés comme des artefacts existants. Leur organisation finale sera documentée ici lorsqu'ils auront effectivement été créés et vérifiés.
 
 ## Installation et reproduction
 
-**État actuel : non applicable.** Cette base documentaire ne contient ni code exécutable, ni fichier Power BI, ni environnement Python, ni commande de reproduction vérifiée. Aucune procédure d'installation n'est revendiquée à ce stade.
+**État actuel : audit local réalisé.** Le script `scripts/audit_data.py` exécute l'audit en lecture par blocs sur les fichiers locaux. Les dépendances Python et la commande exacte d'exécution seront documentées après validation de l'audit ; aucune procédure d'installation Power BI ou de reproduction complète n'est encore revendiquée.
 
 Les instructions de reproduction seront ajoutées uniquement lorsque les fichiers sources concernés, la logique de transformation, les artefacts de reporting et la procédure de validation auront été implémentés et testés.
 

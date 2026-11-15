@@ -218,3 +218,7 @@ __marimo__/
 
 # Streamlit
 .streamlit/secrets.toml
+
+# Project data files (downloaded or generated locally)
+data/raw/
+data/processed/
