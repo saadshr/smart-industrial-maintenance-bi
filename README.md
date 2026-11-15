@@ -6,9 +6,9 @@ Smart Industrial Maintenance BI est un projet académique de Business Intelligen
 
 Le projet s'appuie sur le jeu de données réel **MetroPT-3 Dataset**, collecté à partir d'un compresseur d'air installé dans un train de métro portugais. Il s'agit donc d'une étude de cas du secteur ferroviaire portugais, et non de données collectées au Maroc. Les méthodes analytiques développées ont vocation à fournir des enseignements transposables aux environnements industriels, notamment marocains.
 
-> **État du projet - Audit et modèle dimensionnel conçus**
+> **État du projet - Préparation Power BI implémentée**
 >
-> Le dépôt contient la documentation du projet, l'audit local du CSV officiel et la conception du modèle dimensionnel. Aucun pipeline ETL, rapport Power BI, mesure DAX, capture d'écran ou jeu de données dérivé n'a encore été implémenté.
+> Le dépôt contient désormais le pipeline reproductible, les requêtes Power Query/M, les mesures DAX et le guide de construction. Aucun rapport Power BI Desktop n'est revendiqué comme construit ou validé dans le dépôt.
 
 ## Contexte industriel et problématique métier
 
@@ -58,14 +58,14 @@ Le dataset ne doit pas être confondu avec d'autres datasets ou versions MetroPT
 | Technologie | Utilisation prévue | État |
 | --- | --- | --- |
 | Power BI | Modèle sémantique, rapport interactif et analyse visuelle | Prévu |
-| Power Query | Ingestion, profilage, nettoyage et transformation des données | Prévu |
-| M | Logique de transformation Power Query | Prévu |
-| DAX | Mesures, analyse temporelle et calculs du rapport | Prévu |
+| Power Query | Ingestion, profilage, nettoyage et transformation des données | Préparé |
+| M | Logique de transformation Power Query | Préparé |
+| DAX | Mesures, analyse temporelle et calculs du rapport | Préparé |
 | Git | Contrôle de version et historique académique traçable | En cours |
 | GitHub | Hébergement du dépôt et collaboration | En cours |
-| Python | Contrôles et profilage optionnels de la qualité des données | Prévu ; pas encore requis |
+| Python | Préparation reproductible des tables dérivées | Préparé |
 
-Aucune installation de dépendance ni aucun téléchargement du dataset n'est nécessaire pour l'étape actuelle, qui est uniquement documentaire.
+Le pipeline Python utilise la bibliothèque standard et lit le CSV local sans le modifier. Les fichiers produits sous data/processed/ restent ignorés par Git.
 
 ## Architecture décisionnelle envisagée
 
@@ -112,9 +112,9 @@ Les indicateurs suivants sont candidats à une implémentation ultérieure, sous
 
 Il s'agit d'**indicateurs analytiques prévus**, et non de résultats actuels. Aucun coût de maintenance, nombre d'interventions, taux de disponibilité, taux d'arrêt, MTBF, MTTR ou économie réalisée ne doit être rapporté à partir du dépôt actuel, car les sources validées nécessaires ne sont pas implémentées ici.
 
-### KPI implémentés
+### KPI préparés
 
-**Aucun.** Aucune mesure DAX ni aucun calcul de KPI validé n'a été implémenté dans le dépôt à ce stade.
+Les expressions DAX préparées sont dans dax/measures.dax. Elles doivent encore être collées et actualisées dans Power BI Desktop.
 
 ## Pages Power BI prévues
 
@@ -136,8 +136,8 @@ Toutes les pages ci-dessous sont **Prévues** et n'existent pas encore sous la f
 - [x] Définir le glossaire métier, le dictionnaire de données et les spécifications initiales des KPI.
 - [x] Confirmer les grains des tables de faits, les dimensions, les hiérarchies et la matrice en bus.
 - [x] Documenter le modèle dimensionnel recommandé et ses compromis.
-- [ ] Implémenter et documenter les transformations Power Query / M.
-- [ ] Ajouter des contrôles Python optionnels de la qualité des données s'ils présentent une valeur ajoutée.
+- [x] Implémenter et documenter les transformations Power Query / M.
+- [x] Ajouter le pipeline Python reproductible et les tables dérivées locales.
 - [ ] Construire le modèle sémantique Power BI et valider les relations.
 - [ ] Implémenter et tester les mesures DAX.
 - [ ] Construire et revoir les pages du rapport interactif.

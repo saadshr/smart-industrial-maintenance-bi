@@ -1,0 +1,8 @@
+-- Table: FactSensorObservation
+Nombre observations = COUNTROWS(FactSensorObservation)
+Pression moyenne TP3 (bar) = AVERAGE(FactSensorObservation[TP3])
+Température moyenne huile (°C) = AVERAGE(FactSensorObservation[Oil_temperature])
+Courant moyen moteur (A) = AVERAGE(FactSensorObservation[Motor_current])
+Nombre incidents documentés = DISTINCTCOUNT(FactFailurePeriod[FailurePeriodKey])
+Observations dans incidents documentés = CALCULATE([Nombre observations], FactSensorObservation[FailurePeriodKey] <> BLANK())
+Taux observations incidentées = DIVIDE([Observations dans incidents documentés], [Nombre observations])
