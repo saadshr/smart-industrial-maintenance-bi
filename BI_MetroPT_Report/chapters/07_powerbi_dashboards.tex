@@ -3,6 +3,23 @@
 \section{Artefact inspecté}
 Le dépôt contient Smart\_Industrial\_Maintenance.pbix, ainsi que trois captures correspondant aux pages du rapport. Les captures ont été examinées directement. Le texte ci-dessous décrit les visuels visibles et ne prétend pas décrire des éléments non présents sur les images.
 
+Les trois fichiers disponibles mesurent respectivement 785$\times$482, 791$\times$485 et 793$\times$486 pixels. Les originaux présents dans reports/figures et leurs copies dans le dossier du rapport ont les mêmes dimensions et tailles. Aucune capture HD de 1600 ou 1920 pixels n'a été trouvée ; les images ne sont donc pas artificiellement agrandies. Pour une version de soutenance plus lisible, il faudra reprendre manuellement chaque page dans Power BI Desktop en résolution native élevée ou exporter le rapport, puis remplacer les fichiers sans modifier leurs proportions.
+
+\begin{table}[H]
+\centering
+\caption{Visuels, champs et filtres vérifiés dans les trois dashboards}
+\label{tab:dashboard-fields}
+\begin{tabularx}{\textwidth}{>{\bfseries}l X X}
+\toprule
+Page & Champs ou mesures visibles & Filtres et lecture\\
+\midrule
+Vue générale & Nombre observations, Nombre incidents documentés, Observations dans incidents documentés, Taux observations incidentées ; date et durée par rapport. & Contexte global ; les creux temporels représentent une couverture variable.\\
+Surveillance des capteurs & Date/CalendarDate ; moyenne de TP3, Oil\_temperature et Motor\_current. & Sélection temporelle ; lecture conjointe des signaux sans seuil métier ajouté.\\
+Incidents et OLAP & FailureReportCode, FailureType, Severity, DurationSeconds, observations par incident, Year et Hour. & MonthName et Hour ; slice, dice et pivot visibles, drill-down à confirmer selon la hiérarchie active.\\
+\bottomrule
+\end{tabularx}
+\end{table}
+
 \section{Dashboard 1 -- Vue générale}
 \begin{figure}[H]
 \centering

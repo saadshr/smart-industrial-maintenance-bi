@@ -3,6 +3,22 @@
 \section{Sources et environnement}
 Les sources sont le CSV local, le PDF de description, les documents d'audit et le modèle Power BI. Les scripts suivis sont prepare\_powerbi\_data.py, les requêtes du dossier powerquery et measures.dax. Le pipeline Python utilise la bibliothèque standard et lit le CSV par flux. Les fichiers dérivés restent dans data/processed, répertoire exclu du versionnement.
 
+\begin{table}[H]
+\centering
+\caption{Statut réel des composants ETL}
+\label{tab:etl-status}
+\begin{tabularx}{\textwidth}{>{\bfseries}l X X}
+\toprule
+Composant & Rôle vérifié & Statut dans le projet\\
+\midrule
+prepare\_powerbi\_data.py & Lit le CSV brut, rattache les timestamps, écrit quatre CSV préparés et affiche les volumes. & Exécuté pour produire les tables contrôlées.\\
+CSV de data/processed & Source effectivement importée dans le rapport existant. & Utilisé par Power BI, avec ajustements de types.\\
+Scripts .pq & Ressources M paramétrées pour reproduire les transformations et documenter le modèle. & Préparés ; leur exécution intégrale dans le PBIX n'est pas affirmée sans preuve interne.\\
+measures.dax & Catalogue des sept mesures du modèle. & Mesures vérifiées dans le modèle et reprises dans les dashboards.\\
+\bottomrule
+\end{tabularx}
+\end{table}
+
 \section{Contrôles de qualité}
 L'audit local a vérifié le nombre de lignes, les colonnes, les types, les timestamps, les valeurs nulles, les doublons, la monotonie temporelle et les écarts. Le résultat est : 1\,516\,948 lignes, 17 colonnes, zéro échec de parsing du timestamp, zéro valeur nulle, zéro groupe de doublons complets, zéro timestamp répété et une cadence modale de 10 secondes. Les trous sont conservés comme une propriété du signal d'acquisition.
 
@@ -37,6 +53,8 @@ AddObservationKey = Table.AddIndexColumn(
     Typed, "ObservationKey", 1, 1, Int64.Type),
 \end{lstlisting}
 La première instruction rend le chemin configurable. PromoteHeaders utilise la première ligne comme noms. RenameColumns conserve la traçabilité tout en adoptant les noms du modèle. AddIndexColumn crée une clé technique de fait.
+
+Power Query est l'interface de transformation de Power BI et M est son langage fonctionnel. L'éditeur avancé permet de versionner et relire les étapes, tandis que les types `datetime`, `number`, `Int64.Type` et `date` évitent des comparaisons implicites. Le paramètre pSourceFolder rend le chemin portable ; le format régional doit être explicite lorsque des dates ou des nombres sont lus sous forme de texte. Dans l'implémentation examinée, le pipeline Python a produit les CSV, puis Power BI a principalement importé ces sorties et ajusté les types. Les fichiers `.pq` sont donc des ressources reproductibles, mais ne doivent pas être décrits comme la totalité des transformations réellement exécutées.
 
 DateKey est calculée sous la forme AAAAMMJJ. TimeKey est le nombre de secondes depuis minuit. Enfin, quatre conditions if comparent ObservationTimestamp aux bornes exactes. Les comparaisons sont inclusives et la valeur est null hors période.
 
@@ -74,3 +92,30 @@ Taux observations incidentées =
            [Nombre observations])
 \end{lstlisting}
 COUNTROWS compte les observations du contexte courant. AVERAGE résume une mesure instantanée sans la sommer. DISTINCTCOUNT compte les rapports et non leurs observations. CALCULATE conserve le contexte et filtre les lignes incidentées. DIVIDE protège le calcul contre un dénominateur nul.
+
+\begin{table}[H]
+\centering
+\small
+\setlength{\tabcolsep}{3pt}
+\caption{Lecture des mesures DAX et des dashboards concernés}
+\label{tab:dax-reading}
+\begin{tabularx}{\textwidth}{>{\bfseries\raggedright\arraybackslash}p{3.0cm} >{\raggedright\arraybackslash}X >{\raggedright\arraybackslash}X >{\raggedright\arraybackslash}p{2.2cm}}
+\toprule
+Mesure & Fonction et contexte & Interprétation prudente & Page principale\\
+\midrule
+Nombre observations & COUNTROWS ; compte les lignes visibles de FactSensorObservation. & Volume d'observations, pas durée de marche. & Vue générale\\
+Pression moyenne TP3 & AVERAGE ; moyenne de TP3 dans les filtres actifs. & Niveau moyen du signal, sans seuil de panne inventé. & Surveillance\\
+Température moyenne huile & AVERAGE ; moyenne d'Oil\_temperature. & Contexte thermique moyen. & Surveillance\\
+Courant moyen moteur & AVERAGE ; moyenne de Motor\_current. & Sollicitation électrique moyenne d'une phase. & Surveillance\\
+Nombre incidents documentés & DISTINCTCOUNT ; compte les clés de FactFailurePeriod. & Quatre rapports externes, non 29\,954 pannes. & Vue générale\\
+Observations dans incidents & CALCULATE + filtre sur FailurePeriodKey non vide. & Lignes rattachées aux quatre fenêtres inclusives. & Vue générale / incidents\\
+Taux observations incidentées & DIVIDE ; rapport protégé contre un dénominateur nul. & Proportion de lignes rattachées, pas disponibilité. & Vue générale\\
+\bottomrule
+\end{tabularx}
+\normalsize
+\setlength{\tabcolsep}{6pt}
+\end{table}
+
+CALCULATE modifie le contexte de filtre ; un filtre direct sur une colonne peut remplacer le filtre existant sur cette colonne. Lorsque l'intention est d'ajouter une contrainte sans retirer un filtre déjà sélectionné, `KEEPFILTERS` est préférable, par exemple `CALCULATE([Nombre observations], KEEPFILTERS(FactSensorObservation[TP3] > 8))`. Cette variante n'est pas nécessaire dans les sept mesures finales, mais elle doit être connue avant d'étendre le modèle.
+
+Un retour d'expérience du dashboard concerne un histogramme où les quatre barres apparaissaient identiques. La cause à contrôler était le contexte du champ placé sur l'axe : si le visuel utilise une mesure constante, une colonne de durée non reliée, ou un champ d'une table non filtrée par FailureReportCode, chaque catégorie reçoit la même valeur. La correction consiste à utiliser l'identifiant d'incident sur l'axe et une mesure évaluée dans le contexte de FactFailurePeriod, puis à vérifier le total 86\,340 + 23\,400 + 189\,000 + 16\,200. La formule incorrecte n'est pas présentée comme un résultat final.

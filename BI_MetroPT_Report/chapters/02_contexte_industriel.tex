@@ -5,8 +5,44 @@ Un métro est un système de transport collectif composé de véhicules, d'une i
 
 Dans le contexte décrit par la documentation MetroPT, l'air comprimé est associé à des fonctions telles que le freinage, l'ouverture et la fermeture des portes, le nivellement du véhicule et l'absorption de chocs. Une disponibilité insuffisante peut donc provoquer des restrictions de fonctionnement ou une immobilisation, même si la panne initiale se situe dans le compresseur.
 
+\begin{figure}[H]
+\centering
+\resizebox{0.92\textwidth}{!}{%
+\begin{tikzpicture}[node distance=1.0cm, every node/.style={font=\small}, block/.style={draw=navy, fill=lightnavy, rounded corners, align=center, minimum width=3.0cm, minimum height=0.8cm}, arrow/.style={->, thick, color=gold}]
+\node[block] (apu) {APU\\production d'air};
+\node[block, right=of apu] (reservoir) {Réservoirs\\stockage};
+\node[block, right=of reservoir] (network) {Réseau\\pneumatique};
+\node[block, below=of network] (brake) {Freinage};
+\node[block, left=of brake] (doors) {Portes et\\nivellement};
+\node[block, left=of doors] (safety) {Supervision\\et sécurité};
+\draw[arrow] (apu) -- (reservoir);
+\draw[arrow] (reservoir) -- (network);
+\draw[arrow] (network) -- (brake);
+\draw[arrow] (network) -- (doors);
+\draw[arrow] (network) -- (safety);
+\end{tikzpicture}%
+}
+\caption{Architecture fonctionnelle simplifiée d'un système pneumatique ferroviaire}
+\label{fig:rail-pneumatic-architecture}
+\sourcefigure{schéma conceptuel ; les fonctions sont celles documentées ou génériques et ne constituent pas une photographie MetroPT-3}
+\end{figure}
+
 \section{Fonctionnement général d'une APU}
 L'Air Production Unit transforme l'air ambiant en air comprimé traité. Le moteur électrique entraîne le compresseur. L'air entre par le circuit d'admission, est comprimé, puis passe par des éléments de séparation, de refroidissement et de séchage avant d'être stocké dans des réservoirs et envoyé vers le réseau pneumatique. Des vannes, des pressostats et des capteurs permettent de réguler le fonctionnement et de surveiller les conditions d'exploitation.
+
+La séquence physique peut être décrite comme une chaîne de conversion : admission et filtration, compression entraînée par un moteur, évacuation de la chaleur, séparation et traitement, séchage, stockage, puis régulation vers le réseau. La présence exacte de chaque organe est ici présentée comme une description fonctionnelle de l'APU ; les seules informations directement confirmées par le dataset sont les noms des signaux et les descriptions fournies dans la documentation locale.
+
+\subsection{Admission, filtration et compression}
+L'admission fournit au compresseur un air ambiant débarrassé des particules les plus gênantes par un filtre. Le compresseur augmente la pression en consommant une puissance mécanique fournie par le moteur électrique. Une restriction de filtre, une fuite, une température excessive ou une sollicitation anormale peuvent modifier les pressions et le courant observés. TP2 est le signal le plus directement rapproché de la zone compresseur dans la documentation disponible ; Motor\_current renseigne la sollicitation électrique d'une phase.
+
+\subsection{Refroidissement, séparation et séchage}
+La compression élève la température de l'air. Le refroidissement réduit cette température avant les étapes de traitement. Une séparation huile-air peut être nécessaire dans une architecture lubrifiée ; le rapport la présente comme une fonction générique et ne déduit pas un organe précis non décrit dans le CSV. Le séchage réduit l'humidité avant la distribution. H1 et DV\_pressure sont à rapprocher des variations documentées autour de la décharge et du séchage, sans transformer leurs valeurs en diagnostic autonome.
+
+\subsection{Stockage, régulation et distribution}
+Les réservoirs amortissent les différences entre production et consommation. Reservoirs mesure la pression en aval des réservoirs selon le dictionnaire local, tandis que TP3 renseigne la pression du panneau pneumatique. Les vannes et pressostats commandent ou surveillent des transitions. Une différence entre TP2, TP3 et Reservoirs peut donc être utile pour une investigation, mais sa signification dépend du régime de fonctionnement et de la qualité temporelle des acquisitions.
+
+\subsection{États industriels et transitions}
+Les états génériques d'une APU peuvent être décrits comme arrêté, marche à vide, marche en charge, décharge et transition. Cette nomenclature aide à lire les séquences, mais elle ne doit pas être confondue avec une table d'états officiellement étiquetée dans MetroPT-3. Les champs numériques COMP, DV\_eletric, Towers, MPG, LPS, Pressure\_switch, Oil\_level et Caudal\_impulses sont des signaux d'état ou de commande ; le rapport conserve leur codage et n'impose pas une correspondance universelle entre 0/1 et un état métier.
 
 \begin{figure}[H]
 \centering

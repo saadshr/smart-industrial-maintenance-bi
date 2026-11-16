@@ -8,8 +8,42 @@ Un Data Warehouse est un espace de données intégré, orienté sujet, historis�
 
 Une base opérationnelle privilégie les transactions et la mise à jour courante. Un entrepôt privilégie la lecture, la cohérence et l'agrégation. Même si le projet utilise des fichiers et un modèle Power BI plutôt qu'un serveur d'entrepôt complet, les principes dimensionnels s'appliquent.
 
+\begin{table}[H]
+\centering
+\caption{OLTP et OLAP : deux finalités différentes}
+\label{tab:oltp-olap}
+\begin{tabularx}{\textwidth}{>{\bfseries}l X X}
+\toprule
+Critère & OLTP & OLAP / modèle décisionnel\\
+\midrule
+Objectif & Enregistrer une transaction ou une mesure courante. & Explorer, comparer et agréger un historique.\\
+Grain & Souvent orienté opération et écriture. & Explicitement défini pour l'analyse.\\
+Requêtes & Courtes, sélectives et fréquentes. & Agrégations, filtres croisés et navigation hiérarchique.\\
+MetroPT-3 & Acquisition source des mesures. & Faits, dimensions, mesures DAX et dashboards.\\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+Les quatre propriétés classiques sont donc appliquées de manière concrète : le sujet est la surveillance d'une APU et de ses rapports externes ; l'intégration harmonise les noms, types et clés ; l'historisation conserve les timestamps et les périodes ; la non-volatilité signifie que le rapport lit des sorties préparées sans réécrire le CSV original.
+
 \section{Inmon et Kimball}
 L'approche Inmon construit généralement un entrepôt centralisé normalisé, puis des data marts. L'approche Kimball part des processus et des grains, construit des tables de faits et des dimensions conformes, puis les réutilise dans une constellation. Le projet adopte une variante Kimball pédagogique : FactSensorObservation et FactFailurePeriod possèdent des grains distincts et partagent DimDate, tandis que DimTime décrit l'heure de la journée pour les observations \cite{kimball2013}. Cette décision réduit les ambiguïtés dans Power BI et respecte les limites de la source.
+
+\begin{table}[H]
+\centering
+\caption{Comparaison des approches Inmon et Kimball}
+\label{tab:inmon-kimball}
+\begin{tabularx}{\textwidth}{>{\bfseries}l X X}
+\toprule
+Critère & Inmon, approche top-down & Kimball, approche bottom-up\\
+\midrule
+Point de départ & Entrepôt central d'entreprise, souvent normalisé. & Processus métier, grain, faits et dimensions.\\
+Déploiement & Data marts dérivés du socle central. & Data marts cohérents construits progressivement.\\
+Force & Gouvernance globale et intégration centralisée. & Livraison rapide, lecture métier et réutilisation des dimensions conformes.\\
+Choix MetroPT-3 & Plus lourd que le périmètre académique disponible. & Adapté à deux processus, quatre tables et trois dashboards.\\
+\bottomrule
+\end{tabularx}
+\end{table}
 
 \section{ETL}
 \begin{itemize}
@@ -42,10 +76,12 @@ Power Query constitue ici la transformation visible par l'utilisateur BI. Le pip
 \section{Modélisation dimensionnelle}
 Le grain est la définition de ce qu'une ligne représente. Dans FactSensorObservation, une ligne représente une observation source avec un timestamp et quinze signaux. Dans FactFailurePeriod, une ligne représente un rapport de période externe. Le grain interdit de répéter une période de défaillance à chaque observation comme s'il s'agissait de pannes distinctes.
 
+Les clés primaires sont ObservationKey et FailurePeriodKey ; DateKey et TimeKey jouent le rôle de clés étrangères dans le fait d'observation, tandis que StartDateKey et EndDateKey jouent ce rôle dans le fait d'incident. Les cardinalités attendues sont de type 1:N depuis les dimensions vers les faits, avec un filtrage simple. ObservationCount et FailurePeriodCount sont additives. DurationSeconds est additive au niveau des quatre rapports mais ne doit pas être additionnée comme une durée d'exploitation. Les moyennes de pression, température et courant sont non additives : elles doivent être recalculées dans le contexte filtré.
+
 Une table de faits conserve les mesures et les clés étrangères. Une dimension décrit les axes de filtrage. Le schéma en étoile place une table de faits au centre. Le schéma en flocon normalise davantage les dimensions. La constellation relie plusieurs faits à des dimensions conformes ; c'est le choix retenu.
 
 \section{OLAP}
-OLAP permet d'explorer des mesures sous plusieurs dimensions et niveaux de détail. Power BI joue un rôle proche d'un moteur ROLAP sur un modèle tabulaire : les visuels interrogent les tables et mesures selon le contexte de filtre.
+OLAP permet d'explorer des mesures sous plusieurs dimensions et niveaux de détail. Dans ce projet, Power BI utilise un modèle tabulaire en mode Import tel qu'inspecté dans le fichier PBIX ; les données sont stockées dans le moteur en mémoire VertiPaq et les mesures sont évaluées par le moteur tabulaire. Il ne faut donc pas qualifier automatiquement ce rapport de ROLAP. La catégorie ROLAP décrit plutôt une architecture où les requêtes sont exécutées sur un SGBD relationnel.
 \begin{description}
 \item[Roll-up :] agréger les observations du jour vers le mois, puis vers le trimestre ;
 \item[Drill-down :] revenir d'une année vers un mois puis vers une date ;
@@ -53,7 +89,7 @@ OLAP permet d'explorer des mesures sous plusieurs dimensions et niveaux de déta
 \item[Dice :] combiner un rapport, une période et une tranche horaire ;
 \item[Pivot :] changer l'axe de lecture, par exemple mettre l'heure en colonnes et le mois en lignes.
 \end{description}
-MOLAP stocke des agrégations dans des structures multidimensionnelles, ROLAP s'appuie sur le relationnel et HOLAP combine les deux. Le modèle Power BI du projet est présenté comme une solution tabulaire orientée analyse, sans revendiquer un cube OLAP séparé.
+MOLAP stocke des agrégations dans des structures multidimensionnelles, ROLAP s'appuie sur le relationnel et HOLAP combine les deux. Les modèles tabulaires modernes, dont le mode Import Power BI, constituent une quatrième manière pratique d'exposer des agrégations et des mesures sans créer un cube MOLAP séparé. Les dashboards démontrent effectivement le filtrage par incident, la matrice par année et heure et la navigation temporelle visible ; les opérations théoriquement possibles non visibles dans une capture doivent être présentées comme des capacités du modèle, pas comme des résultats observés.
 
 \begin{pedagogie}
 La hiérarchie Year > QuarterNumber > MonthNumber > CalendarDate rend le drill-down vérifiable. DimTime apporte un autre axe : Hour, Minute, Second et TimeBucket.

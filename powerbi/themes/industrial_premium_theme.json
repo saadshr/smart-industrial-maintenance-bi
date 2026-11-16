@@ -1,0 +1,175 @@
+{
+  "name": "Industrial Premium MetroPT-3",
+  "dataColors": [
+    "#2474A6",
+    "#0D9488",
+    "#F59E0B",
+    "#DC4C4C",
+    "#14283F",
+    "#5B8DB8",
+    "#7A8FA6",
+    "#A8B7C7"
+  ],
+  "background": "#F4F7FB",
+  "foreground": "#263445",
+  "tableAccent": "#2474A6",
+  "good": "#0D9488",
+  "neutral": "#F59E0B",
+  "bad": "#DC4C4C",
+  "textClasses": {
+    "title": {
+      "fontFace": "Aptos Display",
+      "fontSize": 16,
+      "color": "#14283F"
+    },
+    "header": {
+      "fontFace": "Aptos",
+      "fontSize": 11,
+      "color": "#263445"
+    },
+    "callout": {
+      "fontFace": "Aptos Display",
+      "fontSize": 28,
+      "color": "#14283F"
+    },
+    "label": {
+      "fontFace": "Aptos",
+      "fontSize": 10,
+      "color": "#263445"
+    }
+  },
+  "visualStyles": {
+    "*": {
+      "*": {
+        "background": [
+          {
+            "color": { "solid": { "color": "#FFFFFF" } },
+            "transparency": 0
+          }
+        ],
+        "border": [
+          {
+            "show": true,
+            "color": { "solid": { "color": "#D9E2EC" } },
+            "radius": 8,
+            "transparency": 0
+          }
+        ],
+        "title": [
+          {
+            "show": true,
+            "fontFamily": "Aptos Display",
+            "fontSize": 13,
+            "fontColor": { "solid": { "color": "#14283F" } },
+            "alignment": "left"
+          }
+        ],
+        "visualHeader": [
+          {
+            "show": false
+          }
+        ]
+      }
+    },
+    "card": {
+      "*": {
+        "categoryLabels": [
+          {
+            "show": true,
+            "fontFamily": "Aptos",
+            "fontSize": 10,
+            "color": { "solid": { "color": "#5B6B7A" } }
+          }
+        ],
+        "labels": [
+          {
+            "show": true,
+            "fontFamily": "Aptos Display",
+            "fontSize": 26,
+            "color": { "solid": { "color": "#14283F" } }
+          }
+        ]
+      }
+    },
+    "slicer": {
+      "*": {
+        "header": [
+          {
+            "show": true,
+            "fontFamily": "Aptos",
+            "fontSize": 10,
+            "fontColor": { "solid": { "color": "#14283F" } }
+          }
+        ],
+        "selection": [
+          {
+            "fill": { "solid": { "color": "#E8F1F8" } },
+            "textColor": { "solid": { "color": "#14283F" } }
+          }
+        ]
+      }
+    },
+    "tableEx": {
+      "*": {
+        "columnHeaders": [
+          {
+            "fontFamily": "Aptos",
+            "fontSize": 10,
+            "fontColor": { "solid": { "color": "#FFFFFF" } },
+            "backColor": { "solid": { "color": "#14283F" } }
+          }
+        ],
+        "values": [
+          {
+            "fontFamily": "Aptos",
+            "fontSize": 10,
+            "fontColor": { "solid": { "color": "#263445" } },
+            "backColor": { "solid": { "color": "#FFFFFF" } }
+          }
+        ],
+        "grid": [
+          {
+            "outlineColor": { "solid": { "color": "#D9E2EC" } },
+            "rowPadding": 8,
+            "gridVertical": false,
+            "gridHorizontal": true
+          }
+        ]
+      }
+    },
+    "matrix": {
+      "*": {
+        "columnHeaders": [
+          {
+            "fontFamily": "Aptos",
+            "fontSize": 10,
+            "fontColor": { "solid": { "color": "#FFFFFF" } },
+            "backColor": { "solid": { "color": "#14283F" } }
+          }
+        ],
+        "rowHeaders": [
+          {
+            "fontFamily": "Aptos",
+            "fontSize": 10,
+            "fontColor": { "solid": { "color": "#263445" } }
+          }
+        ],
+        "values": [
+          {
+            "fontFamily": "Aptos",
+            "fontSize": 10,
+            "fontColor": { "solid": { "color": "#263445" } }
+          }
+        ],
+        "grid": [
+          {
+            "outlineColor": { "solid": { "color": "#D9E2EC" } },
+            "rowPadding": 6,
+            "gridVertical": false,
+            "gridHorizontal": true
+          }
+        ]
+      }
+    }
+  }
+}

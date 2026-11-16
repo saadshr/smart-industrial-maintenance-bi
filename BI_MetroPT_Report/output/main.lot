@@ -2,14 +2,22 @@
 \addvspace {10\p@ }
 \addvspace {10\p@ }
 \addvspace {10\p@ }
-\contentsline {table}{\numberline {3.1}{\ignorespaces Variables réellement présentes dans le CSV}}{6}{table.3.1}%
-\contentsline {table}{\numberline {3.2}{\ignorespaces Périodes de défaillance documentées}}{8}{table.caption.8}%
+\contentsline {table}{\numberline {3.1}{\ignorespaces Variables réellement présentes dans le CSV}}{7}{table.3.1}%
+\contentsline {table}{\numberline {3.2}{\ignorespaces Comparaison des signaux analogiques et numériques}}{9}{table.caption.9}%
+\contentsline {table}{\numberline {3.3}{\ignorespaces Périodes de défaillance documentées}}{10}{table.caption.10}%
+\addvspace {10\p@ }
+\contentsline {table}{\numberline {4.1}{\ignorespaces OLTP et OLAP : deux finalités différentes}}{11}{table.caption.11}%
+\contentsline {table}{\numberline {4.2}{\ignorespaces Comparaison des approches Inmon et Kimball}}{12}{table.caption.12}%
 \addvspace {10\p@ }
 \addvspace {10\p@ }
+\contentsline {table}{\numberline {6.1}{\ignorespaces Statut réel des composants ETL}}{17}{table.caption.16}%
+\contentsline {table}{\numberline {6.2}{\ignorespaces Contrôles de qualité appliqués avant le chargement}}{18}{table.caption.17}%
+\contentsline {table}{\numberline {6.3}{\ignorespaces Lecture des mesures DAX et des dashboards concernés}}{20}{table.caption.18}%
 \addvspace {10\p@ }
-\contentsline {table}{\numberline {6.1}{\ignorespaces Contrôles de qualité appliqués avant le chargement}}{14}{table.caption.12}%
+\contentsline {table}{\numberline {7.1}{\ignorespaces Visuels, champs et filtres vérifiés dans les trois dashboards}}{21}{table.caption.19}%
 \addvspace {10\p@ }
-\addvspace {10\p@ }
-\contentsline {table}{\numberline {8.1}{\ignorespaces Séparation des niveaux de preuve}}{22}{table.caption.16}%
+\contentsline {table}{\numberline {8.1}{\ignorespaces Comparaison des quatre périodes d'incident}}{26}{table.caption.23}%
+\contentsline {table}{\numberline {8.2}{\ignorespaces Correspondance entre question métier et implémentation BI}}{27}{table.caption.24}%
+\contentsline {table}{\numberline {8.3}{\ignorespaces Séparation des niveaux de preuve}}{28}{table.caption.25}%
 \addvspace {10\p@ }
 \addvspace {10\p@ }

@@ -24,14 +24,20 @@ Le modèle physique recommandé est une constellation minimale :
 \section{FactSensorObservation}
 Cette table conserve ObservationKey, SourceRowKey, DateKey, TimeKey, ObservationTimestamp, FailurePeriodKey, ObservationCount et les quinze signaux. FailurePeriodKey est une colonne dérivée de contexte ; elle ne change pas le grain. ObservationCount vaut 1 par ligne et permet une mesure additive. Les signaux analogiques sont résumés par moyenne, minimum ou maximum selon le besoin ; les signaux 0/1 sont des états et non des pannes.
 
+Sa clé primaire est ObservationKey. DateKey et TimeKey sont des clés étrangères vers DimDate et DimTime ; FailurePeriodKey est une clé de rattachement vers le rapport externe, avec une valeur vide hors des fenêtres documentées. La relation dimensionnelle est donc 1:N : une date ou une seconde peut filtrer plusieurs observations.
+
 \section{FactFailurePeriod}
 Cette table contient FailurePeriodKey, FailureReportCode, les bornes complètes, les clés de date, FailureType, Severity, MaintenanceNoteRaw, SourceReference, DurationSeconds et FailurePeriodCount. Elle reste à quatre lignes. La relation StartDateKey vers DimDate est active. EndDateKey joue un rôle de date secondaire et la relation est inactive dans le modèle recommandé.
+
+Le grain est une ligne par rapport externe, non une ligne par observation. L'association temporelle est calculée avant ou pendant la préparation par la règle inclusive $StartTimestamp \leq ObservationTimestamp \leq EndTimestamp$. Une observation située dans l'intervalle du rapport 3 reçoit la clé 3 ; elle ne crée pas un cinquième incident. Cette séparation explique pourquoi les quatre lignes de FactFailurePeriod restent stables lorsque le nombre d'observations augmente.
 
 \section{Dimensions conformes}
 DimDate contient DateKey, CalendarDate, Year, QuarterNumber, MonthNumber, MonthName et DayOfMonth. DimTime contient 86\,400 secondes de la journée et les attributs TimeLabel, Hour, Minute, Second et TimeBucket. La valeur exacte reste dans ObservationTimestamp ; DimTime sert aux regroupements horaires.
 
 \section{Relations et intégrité}
 Les relations sont un-à-plusieurs, à sens de filtre simple, depuis les dimensions vers les faits. Aucun lien direct entre FactSensorObservation et FactFailurePeriod n'est nécessaire. L'association incidente est faite par comparaison temporelle dans Power Query ou Python. Cette stratégie évite une relation ambiguë et évite de multiplier les périodes.
+
+Le modèle doit représenter les cardinalités et le statut des relations : DimDate vers FactSensorObservation est active, DimTime vers FactSensorObservation est active, DimDate vers FactFailurePeriod via StartDateKey est active, et DimDate vers FactFailurePeriod via EndDateKey est inactive. La relation inactive est activable ponctuellement dans une mesure avec USERELATIONSHIP si une analyse par date de fin est nécessaire ; elle ne doit pas être activée en parallèle de façon ambiguë.
 
 \section{Choix et compromis}
 Un format long aurait rendu naturelle une DimSignal, mais aurait théoriquement produit 22\,754\,220 lignes. Le format large conserve le grain source et limite la complexité pédagogique. Un fait agrégé de cinq minutes pourrait améliorer les tendances, mais il ne doit pas remplacer le fait original car la cadence comporte des trous et des transitions courtes.

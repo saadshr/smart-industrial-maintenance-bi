@@ -25,4 +25,7 @@ powerbi/Smart\_Industrial\_Maintenance.pbix & Rapport Power BI inspecté.\\
 Les filtres sont à sens unique des dimensions vers les faits. Aucune relation directe entre les deux faits n'est requise.
 
 \section{Validation de compilation}
-Le dossier est organisé pour une compilation pdfLaTeX avec Biber. La validation finale a été effectuée avec MiKTeX 26.5 en appelant directement ses exécutables locaux, sans modifier le PATH Windows. Le PDF compilé contient 34 pages et a été contrôlé dans le lecteur PDF ; les avertissements restants sont non bloquants et limités à la composition d'un identifiant de variable et à un alignement de tableau.
+Le dossier est organisé pour une compilation pdfLaTeX avec Biber. La validation finale a été effectuée avec MiKTeX 26.5 en appelant directement ses exécutables locaux, sans modifier le PATH Windows. Le PDF final contient 41 pages physiques : 32 pages sont numérotées dans le corps du rapport, les pages restantes correspondant aux éléments liminaires et aux pages non numérotées selon le template. La table des matières, les références, les figures et la pagination ont été régénérées après l'intégration des trois captures Power BI. Les avertissements restants sont non bloquants et limités à la composition de certains tableaux et à un repli de police.
+
+\section{Limite de résolution des dashboards}
+Les trois captures disponibles sont des images raster d'environ 785 à 793 pixels de largeur. Les originaux HD n'étant pas présents dans le dépôt, aucune interpolation artificielle n'a été appliquée. La reprise manuelle recommandée consiste à exporter les trois pages depuis Power BI Desktop en haute résolution, puis à remplacer les fichiers de figures en conservant les proportions et les légendes existantes.

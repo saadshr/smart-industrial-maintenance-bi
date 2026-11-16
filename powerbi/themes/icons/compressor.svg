@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="Compresseur">
+  <rect x="8" y="24" width="34" height="24" rx="5" fill="#2474A6"/>
+  <circle cx="25" cy="36" r="8" fill="#F4F7FB" stroke="#14283F" stroke-width="4"/>
+  <path d="M42 31h10v10H42M52 36h7" fill="none" stroke="#0D9488" stroke-width="5" stroke-linecap="round"/>
+  <path d="M14 51h32" stroke="#14283F" stroke-width="5" stroke-linecap="round"/>
+</svg>

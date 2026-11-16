@@ -8,7 +8,7 @@ La première observation est datée du 1er février 2020 à 00:00:00 et la derni
 \section{Dictionnaire des variables}
 \small
 \setlength{\tabcolsep}{4pt}
-\begin{longtable}{>{\raggedright\arraybackslash}p{2.15cm}>{\raggedright\arraybackslash}p{3.15cm}>{\centering\arraybackslash}p{1.15cm}>{\centering\arraybackslash}p{2.05cm}>{\raggedright\arraybackslash}p{5.25cm}}
+\begin{longtable}{>{\raggedright\arraybackslash\scriptsize}p{2.15cm}>{\raggedright\arraybackslash}p{3.15cm}>{\centering\arraybackslash}p{1.15cm}>{\centering\arraybackslash}p{2.05cm}>{\raggedright\arraybackslash}p{5.25cm}}
 \caption{Variables réellement présentes dans le CSV}\label{tab:variables}\\
 \toprule
 \textbf{Feature} & \textbf{Signification} & \textbf{Unité} & \textbf{Type} & \textbf{Rôle et interprétation prudente}\\
@@ -39,6 +39,37 @@ La première observation est datée du 1er février 2020 à 00:00:00 et la derni
 \end{longtable}
 \setlength{\tabcolsep}{6pt}
 \normalsize
+
+\section{Lecture pédagogique des signaux}
+Le dictionnaire doit être lu comme une aide à l'analyse et non comme une table de seuils de panne. Les descriptions ci-dessous reprennent les significations documentées ; lorsque l'emplacement exact n'est pas fourni, il est explicitement laissé au niveau fonctionnel.
+
+\begin{table}[H]
+\centering
+\caption{Comparaison des signaux analogiques et numériques}
+\label{tab:signal-families}
+\begin{tabularx}{\textwidth}{>{\bfseries}l X X X}
+\toprule
+Famille & Variables & Lecture BI & Limite d'interprétation\\
+\midrule
+Analogique & TP2, TP3, H1, DV\_pressure, Reservoirs, Oil\_temperature, Motor\_current & Moyenne, minimum, maximum et évolution temporelle ; unités physiques ou électriques documentées. & Une variation n'est pas une panne sans seuil métier, régime et contexte de maintenance.\\
+Numérique & COMP, DV\_eletric, Towers, MPG, LPS, Pressure\_switch, Oil\_level, Caudal\_impulses & Comptage ou filtrage des états 0/1 ; mise en contexte des courbes analogiques. & Le sens exact de 0 et 1 doit rester celui de la documentation ; il ne faut pas compter un état comme un incident.\\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\begin{description}
+\item[TP2 et TP3 :] deux pressions situées à des points fonctionnels différents ; leur comparaison peut renseigner une évolution de la chaîne, mais ne fournit pas une perte de charge calculée sans règle supplémentaire.
+\item[H1 et DV\_pressure :] signaux associés dans la documentation aux phénomènes de décharge et de séchage ; ils sont utiles pour contextualiser un cycle.
+\item[Reservoirs :] pression en aval des réservoirs ; elle permet de comparer la production, le stockage et la distribution sans prétendre mesurer une disponibilité.
+\item[Oil\_temperature :] température de l'huile ; les valeurs décrivent un état thermique instantané et doivent être analysées avec le régime de fonctionnement.
+\item[Motor\_current :] courant d'une phase du moteur ; une hausse peut accompagner un effort, mais ne prouve ni surcharge ni défaut.
+\item[COMP et DV\_eletric :] commandes ou états électriques de vannes ; leur utilisation principale dans Power BI est le filtrage et la mise en contexte.
+\item[Towers et MPG :] états associés au séchage et au démarrage en charge selon la documentation ; ils ne définissent pas une classe normal/anormal.
+\item[LPS, Pressure\_switch, Oil\_level et Caudal\_impulses :] détections ou impulsions discrètes ; elles peuvent être comptées par période, mais une occurrence n'est pas assimilée à une panne documentée.
+\end{description}
+
+\section{Cadence, trous temporels et conséquences}
+La cadence modale de 10 secondes ne signifie pas que chaque seconde ou chaque intervalle de 10 secondes est présent. L'audit compte 51\,147 intervalles supérieurs à la cadence modale et un écart maximal d'environ 47 h 58 min 38 s. Les visualisations de nombre d'observations reflètent donc une couverture d'acquisition variable. Une moyenne par jour ne doit pas être interprétée comme une durée de marche, et une absence de lignes ne doit pas être convertie en arrêt du compresseur. Le pipeline conserve ces trous au lieu d'inventer des observations interpolées.
 
 \section{Relations entre signaux}
 Les pressions TP2, TP3 et Reservoirs décrivent des points différents de la chaîne pneumatique. Leur comparaison peut révéler une cohérence globale ou une différence à examiner. Oil\_temperature renseigne la composante thermique et Motor\_current la sollicitation électrique. Les signaux numériques donnent le contexte de commande. Ces relations sont utiles pour filtrer et comparer, mais aucune règle de classification globale normal/en panne n'a été ajoutée au modèle.

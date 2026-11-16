@@ -5,6 +5,22 @@ Le modèle permet de répondre à quatre questions simples. Combien d'observatio
 
 Le comptage par rapport obtenu dans la table préparée est : 8\,657 observations pour le rapport 1, 2\,360 pour le rapport 2, 17\,315 pour le rapport 3 et 1\,622 pour le rapport 4. La somme vaut 29\,954. Cette cohérence valide la règle de rattachement appliquée au fait sans dupliquer FactFailurePeriod.
 
+\begin{table}[H]
+\centering
+\caption{Comparaison des quatre périodes d'incident}
+\label{tab:incident-comparison}
+\begin{tabularx}{\textwidth}{l r r X}
+\toprule
+Rapport & Durée (s) & Observations rattachées & Lecture prudente\\
+\midrule
+\#1 & 86\,340 & 8\,657 & Fenêtre d'environ 24 heures ; volume dépendant de la couverture réelle.\\
+\#2 & 23\,400 & 2\,360 & Fenêtre courte et traversant deux dates calendaires.\\
+\#3 & 189\,000 & 17\,315 & Fenêtre la plus longue et volume associé le plus élevé.\\
+\#4 & 16\,200 & 1\,622 & Fenêtre la plus courte ; aucune conclusion de gravité n'est déduite du seul volume.\\
+\bottomrule
+\end{tabularx}
+\end{table}
+
 \section{Interprétation des capteurs}
 Le dashboard de surveillance rend visibles trois familles. TP3 renseigne la pression du panneau pneumatique. Oil\_temperature renseigne la température de l'huile. Motor\_current renseigne l'effort électrique d'une phase. Les variations sont intéressantes pour une investigation car elles donnent un contexte conjoint. Cependant, le dataset ne fournit pas de seuil métier global validé par le projet ; le texte évite donc d'étiqueter une observation comme anormale sur la seule base d'un pic.
 
@@ -14,6 +30,27 @@ La courbe de couverture quotidienne présente des creux. L'audit explique que le
 Un responsable peut utiliser la page générale pour vérifier le périmètre, la page capteurs pour sélectionner une période et la page incidents pour comparer un intervalle externe avec les observations correspondantes. Il peut aussi descendre de l'année au mois et à l'heure, ce qui facilite une question du type : quelles observations sont disponibles autour du rapport 3 ?
 
 La valeur du modèle est la traçabilité. Chaque résultat est relié à un grain, une dimension temporelle, une mesure DAX et une règle d'association. Cette traçabilité rend les analyses révisables par un enseignant ou un ingénieur.
+
+\begin{table}[H]
+\centering
+\small
+\setlength{\tabcolsep}{3pt}
+\caption{Correspondance entre question métier et implémentation BI}
+\label{tab:business-questions}
+\begin{tabularx}{\textwidth}{>{\bfseries\raggedright\arraybackslash}p{2.8cm} >{\raggedright\arraybackslash}X >{\raggedright\arraybackslash}X >{\raggedright\arraybackslash}X >{\raggedright\arraybackslash}X}
+\toprule
+Question métier & Indicateur & Table source & Mesure DAX & Dashboard\\
+\midrule
+Quel est le périmètre observé ? & Nombre de lignes & \shortstack[l]{\texttt{FactSensor}\\\texttt{Observation}} & Nombre observations & Vue générale\\
+Combien de rapports externes ? & Nombre de clés distinctes & \shortstack[l]{\texttt{FactFailure}\\\texttt{Period}} & Nombre incidents documentés & Vue générale\\
+Combien de lignes sont dans les fenêtres ? & Lignes avec clé non vide & \shortstack[l]{\texttt{FactSensor}\\\texttt{Observation}} & Observations dans incidents documentés & Vue générale / incidents\\
+Comment évoluent les signaux ? & Moyennes temporelles & \shortstack[l]{\texttt{FactSensor}\\\texttt{Observation}\\+ DimDate} & Pression, température, courant moyens & Surveillance\\
+Comment comparer les périodes ? & Durée et lignes par rapport & \shortstack[l]{\texttt{FactFailure}\\\texttt{Period} + fait} & mesures filtrées & Incidents et OLAP\\
+\bottomrule
+\end{tabularx}
+\normalsize
+\setlength{\tabcolsep}{6pt}
+\end{table}
 
 \section{Faits, interprétations et hypothèses}
 \begin{table}[H]
