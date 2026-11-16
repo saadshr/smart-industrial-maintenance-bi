@@ -1,211 +1,168 @@
-# Smart Industrial Maintenance BI
+# Smart Industrial Maintenance BI — MetroPT-3
 
-**Titre académique :** *Conception et implémentation d'un système décisionnel pour le pilotage de la maintenance industrielle à partir de données IoT*
+![Python](https://img.shields.io/badge/Python-3.12%2B-3776AB?logo=python&logoColor=white)
+![Power BI](https://img.shields.io/badge/Power%20BI-Desktop-F2C811?logo=powerbi&logoColor=111111)
+![LaTeX](https://img.shields.io/badge/Report-LaTeX-008080?logo=latex&logoColor=white)
+![License](https://img.shields.io/badge/Code%20and%20docs-MIT-2ea44f)
 
-Smart Industrial Maintenance BI est un projet académique de Business Intelligence réalisé dans le cadre de la filière **INDIA de l'ENSAM Rabat**. Il étudie comment transformer des données issues de capteurs industriels en un modèle décisionnel fiable pour surveiller un compresseur d'air, étudier les périodes de défaillance documentées et préparer des analyses orientées maintenance.
+Projet académique de Business Intelligence réalisé à l'ENSAM Rabat, filière INDIA, à partir du dataset **MetroPT-3**. Le projet transforme des observations de capteurs d'une unité de production d'air comprimé ferroviaire en un modèle décisionnel exploitable dans Power BI, avec ETL Power Query/M, mesures DAX, analyse temporelle et exploration OLAP.
 
-Le projet s'appuie sur le jeu de données réel **MetroPT-3 Dataset**, collecté à partir d'un compresseur d'air installé dans un train de métro portugais. Il s'agit donc d'une étude de cas du secteur ferroviaire portugais, et non de données collectées au Maroc. Les méthodes analytiques développées ont vocation à fournir des enseignements transposables aux environnements industriels, notamment marocains.
+Les auteurs sont **Saad Sahraoui**, **Hassan El Hajjam** et **Yassine Saddane**, sous l'encadrement de **Pr. Safaâ Dafrallah**, à l'**ENSAM Rabat — Université Mohammed V**, année universitaire **2026/2027**.
 
-> **État du projet - Préparation Power BI implémentée**
->
-> Le dépôt contient désormais le pipeline reproductible, les requêtes Power Query/M, les mesures DAX et le guide de construction. Aucun rapport Power BI Desktop n'est revendiqué comme construit ou validé dans le dépôt.
+## Résultats vérifiés
 
-## Contexte industriel et problématique métier
+Les valeurs ci-dessous proviennent du CSV MetroPT-3 et des quatre périodes d'incident documentées. Elles décrivent une association temporelle inclusive ; une observation associée à une fenêtre ne constitue pas automatiquement une panne individuelle.
 
-Les compresseurs industriels sont des équipements critiques : des conditions de fonctionnement anormales peuvent affecter la continuité de service, la sécurité et la planification de la maintenance. Les séries de mesures issues des capteurs peuvent révéler des profils de fonctionnement et aider les analystes à étudier le contexte des défaillances documentées, mais les données temporelles brutes ne fournissent pas à elles seules une vision directement exploitable pour la décision.
+| Indicateur | Valeur | Interprétation |
+| --- | ---: | --- |
+| Observations IoT | **1 516 948** | Lignes du CSV source |
+| Incidents documentés | **4** | Périodes externes fournies avec la documentation |
+| Observations dans les périodes incidentées | **29 954** | Timestamps compris entre les bornes inclusives |
+| Taux d'observations incidentées | **1,97 %** | 29 954 / 1 516 948 |
 
-La problématique métier traitée par ce projet est la suivante :
+Le projet ne fournit ni coût de maintenance, ni disponibilité, ni MTBF/MTTR, ni modèle prédictif validé. Il s'agit d'une solution décisionnelle historique et documentée, pas d'un système de maintenance prédictive opérationnel.
 
-> Comment organiser des signaux IoT hétérogènes et des périodes de défaillance documentées séparément afin de construire un système décisionnel fiable pour analyser le fonctionnement du compresseur et soutenir l'investigation orientée maintenance ?
+## Contexte industriel
 
-À ce stade, le projet ne prétend pas prédire les pannes, quantifier des économies de maintenance ou mesurer la disponibilité d'un équipement. Ces questions nécessiteraient des labels validés, des données métier et des travaux méthodologiques complémentaires.
+L'**Air Production Unit (APU)** produit et distribue l'air comprimé nécessaire aux fonctions pneumatiques d'un train. Le périmètre MetroPT-3 concerne un compresseur installé dans un train de métro portugais. Les signaux couvrent notamment la pression, la température de l'huile, le courant moteur et des états numériques.
 
-## Objectifs métier et questions décisionnelles
+La problématique est d'organiser des signaux IoT hétérogènes et des rapports d'incidents séparés afin de permettre une lecture fiable du fonctionnement de l'APU et des événements documentés.
 
-### Objectifs
+## Architecture de la solution
 
-- Établir une compréhension traçable des données sources MetroPT-3.
-- Définir un modèle multidimensionnel adapté à l'analyse temporelle et aux périodes de défaillance.
-- Préparer des transformations reproductibles avec Power Query et M.
-- Concevoir des analyses Power BI reposant sur des définitions DAX transparentes et des hypothèses documentées.
-- Appliquer des opérations OLAP telles que le roll-up, le drill-down, le slice, le dice et le pivot.
-- Produire une solution BI documentée sur le plan académique et révisable sur le plan technique.
+```text
+CSV MetroPT-3 + rapports d'incidents
+                 |
+                 v
+      Préparation Python et Power Query/M
+                 |
+                 v
+ FactSensorObservation   FactFailurePeriod
+          |                      |
+          +----------+-----------+
+                     |
+            DimDate / DimTime
+                     |
+                     v
+          Modèle Power BI + DAX
+                     |
+                     v
+       Vue générale | Capteurs | Incidents & OLAP
+```
 
-### Questions décisionnelles
+Le modèle est une constellation minimale à deux faits :
 
-- Comment les signaux des capteurs évoluent-ils dans le temps et selon les périodes de fonctionnement ?
-- Quels profils de signaux sont observés autour des périodes de défaillance documentées séparément ?
-- Comment comparer des périodes de fonctionnement apparemment normales avec des fenêtres de défaillance documentées ?
-- Quels sont les grains temporels et les hiérarchies appropriés pour l'analyse ?
-- Quels problèmes de qualité des données, valeurs manquantes, doublons ou incohérences temporelles pourraient affecter l'interprétation ?
-- Quels indicateurs peuvent être calculés à partir des données sources et lesquels nécessiteraient des données supplémentaires de maintenance ou de l'entreprise ?
+- `FactSensorObservation` : une ligne par observation source et timestamp, avec les signaux et les clés temporelles.
+- `FactFailurePeriod` : une ligne par période d'incident documentée, avec ses bornes, sa durée et son contexte source.
+- `DimDate` : calendrier et hiérarchie annuelle/mensuelle/journalière.
+- `DimTime` : seconde de la journée, heure, minute et tranches horaires.
 
-## Jeu de données
+Les relations et leurs cardinalités sont documentées dans [`model/dimensional_model.md`](./model/dimensional_model.md). Les tables de faits ne sont pas reliées directement entre elles.
 
-Le projet utilise le **MetroPT-3 Dataset (2020)** officiel, publié par l'UCI Machine Learning Repository :
+## Pipeline ETL et reproductibilité
 
-- [UCI Machine Learning Repository — MetroPT-3 Dataset](https://archive.ics.uci.edu/dataset/791/metropt+3+dataset)
-- Taille annoncée : **1 516 948 observations**.
-- Contenu annoncé : **15 signaux de capteurs**, dont 7 signaux analogiques et 8 signaux numériques, ainsi que des informations temporelles relatives au compresseur.
-- Informations de défaillance : quatre périodes de défaillance documentées et fournies séparément par l'opérateur.
+Le fichier original `data/raw/MetroPT3(AirCompressor).csv` reste local et n'est pas versionné. Le script Python lit le CSV sans le modifier et prépare les quatre tables sous `data/processed/`. Les requêtes M correspondantes se trouvent dans [`powerquery/`](./powerquery).
 
-Le fichier CSV d'origine ne contient **pas de label de panne au niveau de chaque ligne**. Les périodes de défaillance doivent donc être traitées comme des informations d'événements externes et reliées aux séries temporelles au moyen de règles temporelles documentées. Toute association de ce type sera explicitement documentée et validée lors de l'implémentation.
+Pré-requis : Python 3.12 ou supérieur, Power BI Desktop pour le chargement du modèle, et les dépendances Python utilisées par l'audit (`pandas`, `pypdf`).
 
-Le dataset ne doit pas être confondu avec d'autres datasets ou versions MetroPT. Ce projet fait spécifiquement référence au **MetroPT-3 Dataset publié en 2020 avec 15 signaux**.
+```powershell
+cd smart-industrial-maintenance-bi
+python scripts/audit_data.py
+python scripts/prepare_powerbi_data.py
+```
 
-## Technologies prévues
+Pour Power Query, définir le paramètre `pSourceFolder` vers le dossier local `data/raw`, puis charger les requêtes dans l'ordre décrit dans [`docs/powerbi_implementation_guide.md`](./docs/powerbi_implementation_guide.md). Les chemins M restent configurables et le CSV source n'est jamais réécrit.
 
-| Technologie | Utilisation prévue | État |
-| --- | --- | --- |
-| Power BI | Modèle sémantique, rapport interactif et analyse visuelle | Prévu |
-| Power Query | Ingestion, profilage, nettoyage et transformation des données | Préparé |
-| M | Logique de transformation Power Query | Préparé |
-| DAX | Mesures, analyse temporelle et calculs du rapport | Préparé |
-| Git | Contrôle de version et historique académique traçable | En cours |
-| GitHub | Hébergement du dépôt et collaboration | En cours |
-| Python | Préparation reproductible des tables dérivées | Préparé |
+## Mesures DAX
 
-Le pipeline Python utilise la bibliothèque standard et lit le CSV local sans le modifier. Les fichiers produits sous data/processed/ restent ignorés par Git.
+Les sept mesures vérifiées sont dans [`dax/measures.dax`](./dax/measures.dax) :
 
-## Rapport académique LaTeX
+1. Nombre observations
+2. Pression moyenne TP3 (bar)
+3. Température moyenne huile (°C)
+4. Courant moyen moteur (A)
+5. Nombre incidents documentés
+6. Observations dans incidents documentés
+7. Taux observations incidentées
 
-Le dossier [BI_MetroPT_Report](./BI_MetroPT_Report) contient le rapport modulaire préparé à partir du template du précédent rapport ML : sources LaTeX, bibliographie, logos ENSAM/UM5 et captures réelles des trois pages Power BI. Aucun PDF compilé n'est revendiqué tant qu'une installation LaTeX n'a pas été disponible et vérifiée.
+Les mesures sont calculées dans le modèle sémantique. Les valeurs affichées dans les dashboards ne sont pas codées en dur.
 
-## Architecture décisionnelle envisagée
+## Dashboards Power BI
 
-L'architecture suivante constitue une cible de conception et non un pipeline implémenté :
+Le rapport Power BI contient trois pages :
 
-~~~mermaid
-flowchart LR
-    A[Donnees sources MetroPT-3] --> B[Power Query / M]
-    E[Rapports externes des periodes de defaillance] --> B
-    B --> C[Modele dimensionnel conforme]
-    C --> D[Mesures semantiques DAX]
-    D --> F[Rapport Power BI]
-    B --> G[Controles de qualite des donnees]
-~~~
+1. **Vue générale** : KPI globaux, évolution quotidienne des observations et durée des incidents documentés.
+2. **Surveillance des capteurs** : pression TP3, température de l'huile et courant moteur, avec analyse temporelle.
+3. **Incidents et OLAP** : historique des quatre incidents, observations associées, matrice temporelle et filtres `MonthName` et `Hour`.
 
-L'architecture préservera la traçabilité des sources, distinguera les observations brutes des associations d'événements dérivées et rendra les hypothèses visibles pour les utilisateurs du rapport. Aucune source d'événements de maintenance, de coûts, de sites ou de référentiel d'équipements n'est actuellement présente dans le dépôt ; ces concepts ne doivent pas être considérés comme disponibles sans source explicite et validation.
+Les captures représentatives ci-dessous sont des illustrations redessinées à partir des pages Power BI finales. Elles ne remplacent pas le fichier PBIX interactif.
 
-## Approche de modélisation multidimensionnelle
+### Vue générale
 
-Le modèle conceptuel recommandé est une constellation minimale composée de deux faits de grains distincts et de dimensions temporelles conformes. Son implémentation technique reste à réaliser après validation académique.
+![Vue générale](<./reports/figures/dashboard_1_Vue_generale .png>)
 
-### Faits et dimensions candidates — Prévu
+### Surveillance des capteurs
 
-- **FactSensorObservation :** une ligne par observation source au grain documenté du timestamp et du signal de capteur.
-- **FactFailurePeriod :** une ligne par période de défaillance documentée séparément, avec sa référence source et ses bornes temporelles.
-- **DimDate / DimTime :** dimensions calendrier et temps utilisées pour les agrégations temporelles.
-- **DimSignal :** nom du signal, type source et métadonnées techniques.
-- **DimFailureContext :** attributs contrôlés décrivant le contexte de l'événement documenté, uniquement lorsqu'ils sont supportés par les rapports externes.
+![Surveillance des capteurs](./reports/figures/Dashboard_2_Surveillence_des_capteurs.png)
 
-La conception finale définira les clés, les relations, la granularité, la gestion des fuseaux horaires et des bornes temporelles ainsi que le traitement des observations manquantes ou dupliquées. Une association à une période de défaillance ne sera pas présentée comme un label natif au niveau de chaque ligne, sauf si cette dérivation est explicitement créée, testée et documentée.
+### Incidents et OLAP
 
-## Catalogue des KPI
+![Incidents et OLAP](./reports/figures/Dashboard3_Incidents_et_OLAP.png)
 
-### KPI prévus
+Le thème Power BI est disponible dans [`powerbi/themes/industrial_premium_theme.json`](./powerbi/themes/industrial_premium_theme.json), avec des icônes industrielles sous [`powerbi/themes/icons/`](./powerbi/themes/icons).
 
-Les indicateurs suivants sont candidats à une implémentation ultérieure, sous réserve du profilage des données et de définitions formelles :
+## Rapport et présentation
 
-- Nombre d'observations et couverture des données par période et par signal.
-- Taux de valeurs manquantes et de doublons.
-- Minimum, maximum, moyenne, médiane et variabilité des signaux lorsque cela est statistiquement pertinent.
-- Nombre et durée des périodes de défaillance documentées.
-- Volume d'observations à l'intérieur et à l'extérieur des fenêtres de défaillance documentées.
-- Synthèses des signaux avant, pendant et après les périodes de défaillance documentées.
+| Livrable | Fichier |
+| --- | --- |
+| Rapport académique PDF | [`BI_MetroPT_Report/output/BI_MetroPT_Report.pdf`](./BI_MetroPT_Report/output/BI_MetroPT_Report.pdf) |
+| Sources LaTeX | [`BI_MetroPT_Report/main.tex`](./BI_MetroPT_Report/main.tex), [`BI_MetroPT_Report/preamble.tex`](./BI_MetroPT_Report/preamble.tex) |
+| Présentation PowerPoint modifiable | [`presentation_pfe/output/MetroPT3_PFE_Presentation_Premium.pptx`](./presentation_pfe/output/MetroPT3_PFE_Presentation_Premium.pptx) |
+| PDF final de soutenance | [`presentation_pfe/output/SMART INDUSTRIAL MAINTENANCE — Version finale—.pdf`](<./presentation_pfe/output/SMART INDUSTRIAL MAINTENANCE — Version finale—.pdf>) |
+| Notes orales | [`presentation_pfe/notes_orales.md`](./presentation_pfe/notes_orales.md) |
+| Présentation Canva | [Version finale Canva](https://www.canva.com/d/ATJE0o0qA9oBnpT) |
 
-Il s'agit d'**indicateurs analytiques prévus**, et non de résultats actuels. Aucun coût de maintenance, nombre d'interventions, taux de disponibilité, taux d'arrêt, MTBF, MTTR ou économie réalisée ne doit être rapporté à partir du dépôt actuel, car les sources validées nécessaires ne sont pas implémentées ici.
+Le PDF de soutenance ajouté manuellement dans `presentation_pfe/output/` est conservé comme référence finale. Le PPTX contient 22 diapositives et 22 notes orales, ainsi que les six illustrations du projet.
 
-### KPI préparés
+## Arborescence utile
 
-Les expressions DAX préparées sont dans dax/measures.dax. Elles doivent encore être collées et actualisées dans Power BI Desktop.
-
-## Pages Power BI prévues
-
-Toutes les pages ci-dessous sont **Prévues** et n'existent pas encore sous la forme d'un rapport Power BI :
-
-1. **Vue exécutive** — périmètre, couverture des données et contexte général des événements documentés.
-2. **Qualité des données** — complétude, doublons, intégrité des timestamps et réserves liées aux sources.
-3. **Exploration des capteurs** — tendances, distributions, comparaisons de signaux et drill-down temporel.
-4. **Analyse des périodes de défaillance** — observations avant, pendant et après les périodes documentées séparément.
-5. **Analyse OLAP** — scénarios de roll-up, drill-down, slice, dice et pivot.
-6. **Méthodologie et hypothèses** — grains, règles d'association aux événements, définitions et limites.
-
-## Feuille de route
-
-- [x] Créer le dépôt GitHub et établir la base documentaire initiale.
-- [x] Documenter le périmètre du projet, l'attribution des sources et les limites actuelles.
-- [x] Auditer le schéma MetroPT-3, les timestamps, les types de signaux, les valeurs manquantes et les doublons.
-- [x] Acquérir et enregistrer localement les fichiers sources officiels et les rapports externes des périodes de défaillance.
-- [x] Définir le glossaire métier, le dictionnaire de données et les spécifications initiales des KPI.
-- [x] Confirmer les grains des tables de faits, les dimensions, les hiérarchies et la matrice en bus.
-- [x] Documenter le modèle dimensionnel recommandé et ses compromis.
-- [x] Implémenter et documenter les transformations Power Query / M.
-- [x] Ajouter le pipeline Python reproductible et les tables dérivées locales.
-- [ ] Construire le modèle sémantique Power BI et valider les relations.
-- [ ] Implémenter et tester les mesures DAX.
-- [ ] Construire et revoir les pages du rapport interactif.
-- [ ] Valider les résultats, les hypothèses et les limites.
-- [ ] Produire le rapport académique et la présentation.
-
-## Organisation du dépôt
-
-Le dépôt contient actuellement les fichiers suivis suivants :
-
-~~~text
+```text
 smart-industrial-maintenance-bi/
+├── BI_MetroPT_Report/     # rapport LaTeX et figures
+├── data/raw/              # sources locales, ignorées par Git
+├── data/processed/        # tables dérivées locales, ignorées par Git
+├── dax/                   # mesures DAX
+├── docs/                  # audits, dictionnaire et guides
+├── model/                 # modèle dimensionnel et bus matrix
+├── powerbi/               # PBIX, thème et icônes
+├── powerquery/            # requêtes M
+├── presentation/          # six illustrations sources
+├── presentation_pfe/      # script, assets, PPTX, PDF et notes
+├── reports/figures/       # captures utilisées dans le rapport/README
+├── scripts/               # audit et préparation Python
 ├── .gitignore
 ├── LICENSE
-├── README.md
-├── docs/
-    ├── data_audit.md
-    └── data_dictionary.md
-├── scripts/
-    └── audit_data.py
-└── model/
-    ├── dimensional_model.md
-    ├── bus_matrix.md
-    └── grain_and_measures.md
-~~~
+└── README.md
+```
 
-Le répertoire `data/raw/` est réservé aux téléchargements locaux et ignoré par Git. Les futurs répertoires et fichiers ne sont volontairement pas présentés comme des artefacts existants. Leur organisation finale sera documentée ici lorsqu'ils auront effectivement été créés et vérifiés.
+## Limites et perspectives
 
-## Installation et reproduction
+Les quatre périodes d'incident viennent de rapports externes au CSV et sont associées par timestamp inclusif. Le dataset ne permet pas d'inférer seul la causalité, les interventions, les coûts ou la disponibilité. Les perspectives naturelles sont l'ajout de labels de maintenance validés, la détection d'anomalies, l'entraînement de modèles de machine learning, l'automatisation du rafraîchissement et l'étude de flux quasi temps réel. Ces extensions ne sont pas implémentées dans ce dépôt.
 
-**État actuel : audit local et conception dimensionnelle réalisés.** Le script `scripts/audit_data.py` exécute l'audit en lecture par blocs sur les fichiers locaux. Les documents `model/` décrivent le grain, les faits, les dimensions, la matrice en bus et les mesures candidates. Aucune procédure d'installation Power BI ou de reproduction complète n'est encore revendiquée.
+## Sources et licence
 
-Les instructions de reproduction seront ajoutées uniquement lorsque les fichiers sources concernés, la logique de transformation, les artefacts de reporting et la procédure de validation auront été implémentés et testés.
+- Dataset : [MetroPT-3 Dataset — UCI Machine Learning Repository](https://archive.ics.uci.edu/dataset/791/metropt+3+dataset)
+- Publication : [The MetroPT dataset for predictive maintenance](https://doi.org/10.1016/j.dib.2022.108140)
+- Documentation technique locale : [`data/raw/Data Description_Metro.pdf`](./data/raw/Data%20Description_Metro.pdf) lorsqu'elle est disponible localement.
+- Code et documentation du projet : [LICENSE](./LICENSE), licence MIT.
+- Les conditions de réutilisation du dataset restent celles de son fournisseur et de sa licence d'origine ; le CSV brut n'est pas redistribué par ce dépôt.
 
-## Références, attribution et licences
+## Auteurs
 
-- Dataset : [MetroPT-3 Dataset — UCI Machine Learning Repository](https://archive.ics.uci.edu/dataset/791/metropt+3+dataset).
-- Documentation du dataset et exigences de citation : suivre la page officielle UCI et les métadonnées de publication associées.
-- Le dataset reste attribué à ses créateurs et à son fournisseur d'origine. Ce dépôt ne revendique aucun droit de propriété sur les données sources.
-- Le dépôt contient une [licence MIT](./LICENSE) pour le code et la documentation du projet. Cette licence du dépôt ne modifie pas et ne remplace pas automatiquement les conditions d'utilisation propres au dataset ; les utilisateurs doivent consulter la page officielle du dataset avant toute redistribution des données.
+- Saad Sahraoui
+- Hassan El Hajjam
+- Yassine Saddane
 
-## Limites et hypothèses
-
-- Les données sources décrivent un compresseur installé dans un train de métro portugais ; il ne s'agit pas de données opérationnelles marocaines.
-- Le CSV d'origine ne fournit pas de label de panne au niveau de chaque ligne. Les périodes de défaillance proviennent de rapports opérateur séparés et nécessitent une association temporelle documentée.
-- Le dataset seul ne permet pas d'établir les interventions de maintenance, les coûts, l'impact sur la production, la disponibilité ou les économies.
-- Tout choix concernant le grain temporel, les bornes des fenêtres d'événements, le traitement des valeurs manquantes, la méthode d'agrégation ou la règle d'anomalie peut affecter l'analyse et doit être validé.
-- Les KPI prévus sont soumis au profilage des sources et pourront être révisés si leurs définitions ne sont pas supportées par les champs disponibles.
-- Le projet est une étude académique de système décisionnel. Il ne doit pas être présenté comme un système de maintenance en production ni comme un modèle de maintenance prédictive validé sans éléments supplémentaires.
-
-## Livrables académiques
-
-Les livrables académiques prévus sont les suivants :
-
-- analyse de la problématique métier et des besoins ;
-- audit des données sources et dictionnaire de données ;
-- modèle multidimensionnel, schéma en étoile ou constellation et matrice en bus ;
-- documentation de la préparation Power Query / M ;
-- catalogue des mesures DAX et notes de validation ;
-- tableau de bord Power BI interactif ;
-- scénarios d'analyse OLAP et interprétation des résultats ;
-- rapport académique présentant la méthodologie, les hypothèses, les limites et les références ;
-- présentation finale et démonstration du projet.
-
-## Règles de contribution
-
-Les modifications doivent rester ciblées, documentées et traçables avec Git. Chaque étape d'implémentation doit distinguer clairement les états **Prévu**, **En cours** et **Terminé**, et éviter de présenter des résultats qui n'ont pas été calculés et validés.
+Encadrante : Pr. Safaâ Dafrallah<br>
+ENSAM Rabat — Université Mohammed V<br>
+Filière INDIA — Année universitaire 2026/2027

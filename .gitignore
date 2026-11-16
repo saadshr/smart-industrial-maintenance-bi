@@ -222,3 +222,23 @@ __marimo__/
 # Project data files (downloaded or generated locally)
 data/raw/
 data/processed/
+
+# Local LaTeX build products
+*.aux
+*.bcf
+*.blg
+*.fdb_latexmk
+*.fls
+*.lof
+*.log
+*.lot
+*.run.xml
+*.synctex.gz
+*.toc
+BI_MetroPT_Report/output/
+
+# Local presentation build runtime and temporary exports
+presentation_pfe/.runtime/
+tmp/
+*.tmp
+*.bak
