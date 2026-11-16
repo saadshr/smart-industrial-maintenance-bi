@@ -1,0 +1,77 @@
+\documentclass[12pt,oneside]{book}
+\input{preamble}
+\begin{document}
+\hypersetup{pageanchor=false}
+\begin{titlepage}
+\centering
+\vspace*{0.35cm}
+\begin{tabular*}{\textwidth}{@{\extracolsep{\fill}}cc@{}}
+\includegraphics[height=2.55cm,keepaspectratio]{logo_um5.png} &
+\includegraphics[height=2.55cm,keepaspectratio]{logo_ensam_rabat.png}
+\end{tabular*}
+\vspace{0.35cm}
+{\Large\textsc{Université Mohammed V}\par}
+\vspace{0.25cm}
+{\large\textsc{École Nationale Supérieure d'Arts et Métiers — ENSAM Rabat}\par}
+\vspace{0.9cm}
+{\large Filière : Ingénierie Numérique en Data Science, Intelligence Artificielle et Santé Digitale (INDIA)\par}
+\vspace{0.25cm}
+{\large Projet de Business Intelligence\par}
+\vfill
+{\color{navy}\rule{\textwidth}{1.2pt}}\\[0.45cm]
+{\Huge\bfseries\color{navy} Conception et réalisation d'une solution décisionnelle\\[0.15cm] pour l'analyse d'une APU ferroviaire\par}
+\vspace{0.25cm}
+{\Large\textcolor{darkgray}{Étude du dataset MetroPT-3 avec Data Warehouse, Power Query, DAX et OLAP}\par}
+{\color{gold}\rule{\textwidth}{1.2pt}}
+\vfill
+\begin{tabular}{ll}
+\textbf{Réalisé par :} & Saad Sahraoui\\
+                           & Hassan El Hajjam\\
+                           & Yassine Saddane\\
+\textbf{Encadré par :} & Pr. Safaâ Dafrallah\\
+\textbf{Année universitaire :} & 2026/2027
+\end{tabular}
+\vfill
+{\large\today\par}
+\end{titlepage}
+\frontmatter
+\hypersetup{pageanchor=true}
+\chapter*{Résumé}
+Ce rapport présente la conception et la mise en œuvre d'une solution de Business Intelligence consacrée à la surveillance historique d'une unité de production d'air comprimé installée dans un train de métro. Le projet exploite MetroPT-3, un jeu de données réel distribué par l'UCI Machine Learning Repository et composé d'observations temporelles de pression, température, courant moteur et signaux numériques. L'étude ne prétend pas construire un modèle de prédiction des pannes : elle organise les données, conserve le grain source, relie temporellement quatre périodes de défaillance documentées et restitue les résultats dans Power BI.
+
+Le dispositif retenu est une constellation minimale comprenant FactSensorObservation, FactFailurePeriod, DimDate et DimTime. Les transformations sont préparées en Power Query/M et contrôlées par un pipeline Python reproductible. Les trois pages Power BI inspectées sont Vue générale, Surveillance des capteurs et Incidents et OLAP. Les résultats visibles indiquent 1\,516\,948 observations, quatre incidents documentés et 29\,954 observations situées dans les fenêtres incidentes, soit 1,97\,\%. Ces valeurs sont rapportées comme des résultats du rapport inspecté, sans les interpréter comme une disponibilité, un MTTR ou une preuve de causalité.
+
+\textbf{Mots-clés :} Business Intelligence, Data Warehouse, ETL, Power Query, DAX, OLAP, maintenance industrielle, MetroPT-3.
+\chapter*{Abstract}
+This report presents the design and implementation of a Business Intelligence solution for the historical monitoring of a railway air production unit. It uses MetroPT-3, a real dataset distributed by the UCI Machine Learning Repository, containing time-stamped pressure, temperature, motor-current and digital signals. The work is deliberately decision-oriented: it organizes the source observations, preserves their grain, associates four documented failure periods by inclusive timestamps, and exposes the result through Power BI. It does not claim to provide a validated predictive-maintenance model.
+
+The resulting constellation contains FactSensorObservation, FactFailurePeriod, DimDate and DimTime. Power Query/M transformations and a reproducible Python preparation script support the model. The inspected Power BI report contains three pages: General Overview, Sensor Monitoring, and Incidents and OLAP. The visible report values are 1,516,948 observations, four documented incidents and 29,954 observations inside the incident windows, corresponding to 1.97\%. These figures are reported as observed dashboard results and are not interpreted as availability, MTTR or causal evidence.
+\textbf{Keywords:} Business Intelligence, Data Warehouse, ETL, Power Query, DAX, OLAP, industrial maintenance, MetroPT-3.
+\chapter*{Abréviations}
+\begin{tabularx}{\textwidth}{>{\bfseries}lX}
+APU & Air Production Unit, unité de production d'air\\
+BI & Business Intelligence, informatique décisionnelle\\
+DAX & Data Analysis Expressions\\
+ETL & Extract, Transform, Load\\
+OLAP & Online Analytical Processing\\
+PFA & Projet de fin d'année\\
+UM5 & Université Mohammed V\\
+\end{tabularx}
+\tableofcontents
+\listoffigures
+\listoftables
+\mainmatter
+\include{chapters/01_introduction}
+\include{chapters/02_contexte_industriel}
+\include{chapters/03_dataset_metropt}
+\include{chapters/04_fondements_bi}
+\include{chapters/05_datawarehouse}
+\include{chapters/06_etl_powerquery}
+\include{chapters/07_powerbi_dashboards}
+\include{chapters/08_resultats_discussion}
+\include{chapters/09_conclusion}
+\appendix
+\include{chapters/annexes}
+\backmatter
+\printbibliography[heading=bibintoc,title={Bibliographie et webographie}]
+\end{document}

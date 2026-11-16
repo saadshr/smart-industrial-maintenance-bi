@@ -1,0 +1,72 @@
+\chapter{Présentation du dataset MetroPT-3}
+
+\section{Origine et structure}
+MetroPT-3 est distribué par l'UCI Machine Learning Repository \cite{uciMetroPT}. La publication associée décrit un jeu de données destiné aux travaux de maintenance conditionnelle et d'analyse des défaillances \cite{veloso2022}. Le dépôt local contient le CSV MetroPT3(AirCompressor).csv et un PDF de description. L'audit du fichier local compte 1\,516\,948 lignes et 17 colonnes : une colonne d'index technique, un timestamp et quinze signaux.
+
+La première observation est datée du 1er février 2020 à 00:00:00 et la dernière du 1er septembre 2020 à 03:59:50. Le timestamp est parsé sans échec. Aucune valeur nulle n'a été détectée dans les 17 colonnes et aucun doublon complet ou timestamp répété n'a été relevé. L'intervalle modal entre deux observations est de 10 secondes, mais 51\,147 intervalles dépassent cette cadence et le plus grand écart est d'environ 47 h 58 min 38 s. L'analyse ne complète donc pas artificiellement les trous.
+
+\section{Dictionnaire des variables}
+\small
+\setlength{\tabcolsep}{4pt}
+\begin{longtable}{>{\raggedright\arraybackslash}p{2.15cm}>{\raggedright\arraybackslash}p{3.15cm}>{\centering\arraybackslash}p{1.15cm}>{\centering\arraybackslash}p{2.05cm}>{\raggedright\arraybackslash}p{5.25cm}}
+\caption{Variables réellement présentes dans le CSV}\label{tab:variables}\\
+\toprule
+\textbf{Feature} & \textbf{Signification} & \textbf{Unité} & \textbf{Type} & \textbf{Rôle et interprétation prudente}\\
+\midrule
+\endfirsthead
+\toprule
+\textbf{Feature} & \textbf{Signification} & \textbf{Unité} & \textbf{Type} & \textbf{Rôle et interprétation prudente}\\
+\midrule
+\endhead
+\path{Unnamed: 0} & Index technique source & -- & entier & Traçabilité de la ligne ; ce n'est pas un identifiant d'équipement.\\
+\path{timestamp} & Date et heure de mesure & -- & texte puis datetime & Axe temporel et association aux incidents.\\
+\path{TP2} & Pression sur le compresseur & bar & analogique & Pression locale ; les extrêmes doivent être contextualisés.\\
+\path{TP3} & Pression au panneau pneumatique & bar & analogique & Indicateur de pression distribuée et de tendance.\\
+\path{H1} & Pression liée à la décharge du filtre du séparateur cyclonique & bar & analogique & Signal de décharge ; à rapprocher du cycle de séchage.\\
+\path{DV_pressure} & Chute de pression lors de la décharge des tours & bar & analogique & Valeur nulle documentée comme compatible avec un fonctionnement en charge.\\
+\path{Reservoirs} & Pression en aval des réservoirs & bar & analogique & Comparaison avec TP3 et observation du stockage.\\
+\path{Oil_temperature} & Température de l'huile & degré C & analogique & Suivi thermique ; les pics sont des signaux à investiguer.\\
+\path{Motor_current} & Courant d'une phase du moteur & A & analogique & Indice d'effort électrique ; pas un diagnostic autonome.\\
+\path{COMP} & Commande ou état de vanne d'admission & -- & 0/1 & État numérique, non équivalent à un nombre de pannes.\\
+\path{DV_eletric} & Commande électrique de vanne de sortie & -- & 0/1 & État de fonctionnement en charge selon la documentation.\\
+\path{Towers} & Tour associée au séchage & -- & 0/1 & État de commutation du sécheur.\\
+\path{MPG} & Signal de démarrage en charge & -- & 0/1 & Activation associée à un seuil documenté.\\
+\path{LPS} & Détection d'une pression basse & -- & 0/1 & Alerte d'état ; le seuil ne devient pas un KPI inventé.\\
+\path{Pressure_switch} & Détection de décharge des tours & -- & 0/1 & État du pressostat.\\
+\path{Oil_level} & Détection d'un niveau d'huile bas & -- & 0/1 & Signal d'alerte, sans conclure à une panne.\\
+\path{Caudal_impulses} & Impulsions associées au débit d'air & -- & 0/1 & Activité discrète du circuit d'air.\\
+\bottomrule
+\end{longtable}
+\setlength{\tabcolsep}{6pt}
+\normalsize
+
+\section{Relations entre signaux}
+Les pressions TP2, TP3 et Reservoirs décrivent des points différents de la chaîne pneumatique. Leur comparaison peut révéler une cohérence globale ou une différence à examiner. Oil\_temperature renseigne la composante thermique et Motor\_current la sollicitation électrique. Les signaux numériques donnent le contexte de commande. Ces relations sont utiles pour filtrer et comparer, mais aucune règle de classification globale normal/en panne n'a été ajoutée au modèle.
+
+\section{Périodes de défaillance externes}
+Les quatre périodes sont conservées dans FactFailurePeriod, une ligne par rapport externe. Les bornes utilisées dans le pipeline et dans la requête M sont inclusives :
+\[
+\begin{aligned}
+\text{ObservationTimestamp} &\geq \text{StartTimestamp}\\
+\land\quad \text{ObservationTimestamp} &\leq \text{EndTimestamp}.
+\end{aligned}
+\]
+\begin{table}[H]
+\centering
+\caption{Périodes de défaillance documentées}
+\label{tab:failures}
+\begin{tabularx}{\textwidth}{l l l l r}
+\toprule
+\textbf{Rapport} & \textbf{Début} & \textbf{Fin} & \textbf{Type} & \textbf{Durée s}\\
+\midrule
+\#1 & 18/04 00:00 & 18/04 23:59 & Air leak & 86\,340\\
+\#2 & 29/05 23:30 & 30/05 06:00 & Air leak & 23\,400\\
+\#3 & 05/06 10:00 & 07/06 14:30 & Air leak & 189\,000\\
+\#4 & 15/07 14:30 & 15/07 19:00 & Air leak & 16\,200\\
+\bottomrule
+\end{tabularx}
+\end{table}
+Les notes de maintenance brutes sont conservées sans correction automatique. Le rapport 2 présente notamment une note datée du 30 avril alors que l'intervalle est en mai ; cette incohérence documentaire est signalée, non réparée.
+
+\section{Intérêt BI et limites}
+Le dataset est adapté à la BI car il combine un volume important, un axe temporel, des mesures continues, des états discrets et des événements externes. Il ne contient cependant ni coûts, ni ordres de travail, ni disponibilité, ni durée réelle d'intervention. Il ne permet donc pas de calculer correctement le MTBF, le MTTR ou un gain économique.

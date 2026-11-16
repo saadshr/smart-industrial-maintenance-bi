@@ -1,0 +1,36 @@
+\chapter{Analyse des résultats et discussion}
+
+\section{Résultats observés}
+Le modèle permet de répondre à quatre questions simples. Combien d'observations sont disponibles ? 1\,516\,948. Combien de périodes externes sont documentées ? quatre. Combien d'observations tombent dans leurs fenêtres inclusives ? 29\,954 selon la page Vue générale. Quelle est leur proportion parmi les observations ? 1,97\,\%.
+
+Le comptage par rapport obtenu dans la table préparée est : 8\,657 observations pour le rapport 1, 2\,360 pour le rapport 2, 17\,315 pour le rapport 3 et 1\,622 pour le rapport 4. La somme vaut 29\,954. Cette cohérence valide la règle de rattachement appliquée au fait sans dupliquer FactFailurePeriod.
+
+\section{Interprétation des capteurs}
+Le dashboard de surveillance rend visibles trois familles. TP3 renseigne la pression du panneau pneumatique. Oil\_temperature renseigne la température de l'huile. Motor\_current renseigne l'effort électrique d'une phase. Les variations sont intéressantes pour une investigation car elles donnent un contexte conjoint. Cependant, le dataset ne fournit pas de seuil métier global validé par le projet ; le texte évite donc d'étiqueter une observation comme anormale sur la seule base d'un pic.
+
+La courbe de couverture quotidienne présente des creux. L'audit explique que les intervalles supérieurs à la cadence modale sont fréquents. Un creux de nombre d'observations peut donc indiquer un trou d'acquisition ou une couverture variable. Il ne doit pas être interprété comme une durée d'arrêt du compresseur.
+
+\section{Apport pour un responsable maintenance}
+Un responsable peut utiliser la page générale pour vérifier le périmètre, la page capteurs pour sélectionner une période et la page incidents pour comparer un intervalle externe avec les observations correspondantes. Il peut aussi descendre de l'année au mois et à l'heure, ce qui facilite une question du type : quelles observations sont disponibles autour du rapport 3 ?
+
+La valeur du modèle est la traçabilité. Chaque résultat est relié à un grain, une dimension temporelle, une mesure DAX et une règle d'association. Cette traçabilité rend les analyses révisables par un enseignant ou un ingénieur.
+
+\section{Faits, interprétations et hypothèses}
+\begin{table}[H]
+\centering
+\caption{Séparation des niveaux de preuve}
+\label{tab:discussion}
+\begin{tabularx}{\textwidth}{p{3.4cm}X}
+\toprule
+\textbf{Niveau} & \textbf{Exemple dans le projet}\\
+\midrule
+Résultat observé & Le dashboard affiche 1\,516\,948 observations et 4 incidents.\\
+Interprétation technique & TP3, température et courant sont des axes pertinents pour une surveillance conditionnelle.\\
+Hypothèse à vérifier & Une variation conjointe pourrait signaler un régime particulier ; elle nécessite une analyse métier.\\
+Perspective & Ajouter des labels d'intervention et un modèle d'anomalie validé.\\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\section{Ce que le projet ne conclut pas}
+Il ne calcule pas de disponibilité, de coût, de MTBF, de MTTR, de nombre d'interventions ou d'économie. Il ne classe pas toutes les observations hors fenêtre comme normales. Il ne déploie pas de Machine Learning de prédiction. Ces restrictions sont nécessaires pour respecter les données effectivement disponibles.

@@ -1,0 +1,12 @@
+\chapter{Limites, perspectives et conclusion}
+
+\section{Limites}
+La première limite est temporelle : la cadence modale est de 10 secondes, mais la série comporte des irrégularités et des coupures. La deuxième est sémantique : les signaux numériques sont documentés, mais une règle unique de classification d'état n'a pas été validée. La troisième est événementielle : quatre rapports externes ne constituent pas une base complète des interventions. Enfin, le dataset ne contient pas les coûts, les ordres de travail, les stocks de pièces ou les temps d'immobilisation.
+
+\section{Perspectives}
+Une extension pourrait ajouter une table d'interventions validée, une dimension d'équipement si un parc est étudié, des règles de qualité de données automatisées, une agrégation contrôlée à cinq minutes et un système d'alertes. Une approche de détection d'anomalies pourrait ensuite apprendre un comportement de référence, mais elle devrait traiter les trous, les changements de régime et les fenêtres incidentes sans fuite d'information. Un modèle prédictif demanderait des données d'entraînement, un horizon, une fonction de coût et une évaluation temporelle.
+
+\section{Conclusion générale}
+Ce projet montre comment passer d'un historique de capteurs à un modèle décisionnel exploitable. La solution conserve le fait source, sépare les incidents externes, construit les dimensions temporelles et expose des mesures DAX simples. Les captures Power BI démontrent trois usages complémentaires : cadrer le périmètre, surveiller les signaux et explorer les incidents par OLAP.
+
+La contribution principale n'est pas une promesse de prédiction automatique. Elle réside dans une préparation traçable, une modélisation cohérente et une lecture prudente des résultats. Cette base est suffisamment structurée pour accueillir ultérieurement des données de maintenance opérationnelle et évoluer vers un dispositif de maintenance conditionnelle puis prédictive.

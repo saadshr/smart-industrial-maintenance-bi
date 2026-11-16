@@ -1,0 +1,80 @@
+\chapter{Fondements théoriques de la Business Intelligence}
+
+\section{De la donnée à la décision}
+La Business Intelligence désigne l'ensemble des méthodes, architectures et outils qui transforment des données hétérogènes en informations utiles à la décision. Dans ce projet, la chaîne part d'un CSV de capteurs, passe par une préparation contrôlée et aboutit à des indicateurs et des visualisations filtrables. Le système opérationnel produit des événements de mesure ; le système décisionnel les organise pour l'analyse historique.
+
+\section{Data Warehouse}
+Un Data Warehouse est un espace de données intégré, orienté sujet, historisé et non volatil. Intégré signifie que les types, noms et règles sont harmonisés. Orienté sujet signifie que l'organisation suit un processus analytique, ici l'observation d'un compresseur et les incidents documentés. Historisé signifie que l'on conserve la dimension temporelle. Non volatil signifie que les analyses lisent une préparation contrôlée plutôt qu'un flux transactionnel modifié à chaque requête.
+
+Une base opérationnelle privilégie les transactions et la mise à jour courante. Un entrepôt privilégie la lecture, la cohérence et l'agrégation. Même si le projet utilise des fichiers et un modèle Power BI plutôt qu'un serveur d'entrepôt complet, les principes dimensionnels s'appliquent.
+
+\section{Inmon et Kimball}
+L'approche Inmon construit généralement un entrepôt centralisé normalisé, puis des data marts. L'approche Kimball part des processus et des grains, construit des tables de faits et des dimensions conformes, puis les réutilise dans une constellation. Le projet adopte une variante Kimball pédagogique : FactSensorObservation et FactFailurePeriod possèdent des grains distincts et partagent DimDate, tandis que DimTime décrit l'heure de la journée pour les observations \cite{kimball2013}. Cette décision réduit les ambiguïtés dans Power BI et respecte les limites de la source.
+
+\section{ETL}
+\begin{itemize}
+\item \textbf{Extract :} lecture du CSV original et des périodes externes documentées ;
+\item \textbf{Transform :} renommage de l'index, conversion du timestamp, création de DateKey et TimeKey, typage des signaux et association inclusive aux incidents ;
+\item \textbf{Load :} chargement des tables dans le modèle sémantique Power BI.
+\end{itemize}
+Power Query constitue ici la transformation visible par l'utilisateur BI. Le pipeline Python reproduit les mêmes contrôles en dehors de Power BI et ne modifie jamais la source.
+
+\begin{figure}[H]
+\centering
+\resizebox{0.96\textwidth}{!}{%
+\begin{tikzpicture}[node distance=1.3cm, every node/.style={font=\small}, block/.style={draw=navy, fill=lightnavy, rounded corners, align=center, minimum width=3.1cm, minimum height=0.9cm}, result/.style={draw=gold, fill=white, rounded corners, align=center, minimum width=3.1cm, minimum height=0.9cm}, arrow/.style={->, thick, color=navy}]
+\node[block] (source) {Sources\\CSV + documentation};
+\node[block, right=of source] (etl) {ETL\\Power Query / Python};
+\node[result, right=of etl] (model) {Modèle\\4 tables BI};
+\node[result, right=of model] (dax) {Mesures\\DAX vérifiables};
+\node[block, right=of dax] (decision) {Power BI\\décision et OLAP};
+\draw[arrow] (source) -- (etl);
+\draw[arrow] (etl) -- (model);
+\draw[arrow] (model) -- (dax);
+\draw[arrow] (dax) -- (decision);
+\end{tikzpicture}%
+}
+\caption{Chaîne conceptuelle de la donnée vers la décision}
+\label{fig:bi-chain}
+\sourcefigure{élaboration propre à partir de l'architecture du projet}
+\end{figure}
+
+\section{Modélisation dimensionnelle}
+Le grain est la définition de ce qu'une ligne représente. Dans FactSensorObservation, une ligne représente une observation source avec un timestamp et quinze signaux. Dans FactFailurePeriod, une ligne représente un rapport de période externe. Le grain interdit de répéter une période de défaillance à chaque observation comme s'il s'agissait de pannes distinctes.
+
+Une table de faits conserve les mesures et les clés étrangères. Une dimension décrit les axes de filtrage. Le schéma en étoile place une table de faits au centre. Le schéma en flocon normalise davantage les dimensions. La constellation relie plusieurs faits à des dimensions conformes ; c'est le choix retenu.
+
+\section{OLAP}
+OLAP permet d'explorer des mesures sous plusieurs dimensions et niveaux de détail. Power BI joue un rôle proche d'un moteur ROLAP sur un modèle tabulaire : les visuels interrogent les tables et mesures selon le contexte de filtre.
+\begin{description}
+\item[Roll-up :] agréger les observations du jour vers le mois, puis vers le trimestre ;
+\item[Drill-down :] revenir d'une année vers un mois puis vers une date ;
+\item[Slice :] sélectionner un seul rapport d'incident ;
+\item[Dice :] combiner un rapport, une période et une tranche horaire ;
+\item[Pivot :] changer l'axe de lecture, par exemple mettre l'heure en colonnes et le mois en lignes.
+\end{description}
+MOLAP stocke des agrégations dans des structures multidimensionnelles, ROLAP s'appuie sur le relationnel et HOLAP combine les deux. Le modèle Power BI du projet est présenté comme une solution tabulaire orientée analyse, sans revendiquer un cube OLAP séparé.
+
+\begin{pedagogie}
+La hiérarchie Year > QuarterNumber > MonthNumber > CalendarDate rend le drill-down vérifiable. DimTime apporte un autre axe : Hour, Minute, Second et TimeBucket.
+\end{pedagogie}
+
+\begin{figure}[H]
+\centering
+\resizebox{0.82\textwidth}{!}{%
+\begin{tikzpicture}[every node/.style={font=\small}, op/.style={draw=navy, fill=lightnavy, rounded corners, align=center, minimum width=3.0cm, minimum height=0.75cm}, arrow/.style={->, thick, color=gold}]
+\node[op] (centre) {Modèle tabulaire\\mesure + contexte};
+\node[op, above left=1.0cm and 2.0cm of centre] (roll) {Roll-up\\jour $\rightarrow$ mois};
+\node[op, below left=1.0cm and 2.0cm of centre] (drill) {Drill-down\\année $\rightarrow$ date};
+\node[op, above right=1.0cm and 2.0cm of centre] (slice) {Slice\\un incident};
+\node[op, below right=1.0cm and 2.0cm of centre] (dice) {Dice / Pivot\\filtres croisés};
+\draw[arrow] (centre) -- (roll);
+\draw[arrow] (centre) -- (drill);
+\draw[arrow] (centre) -- (slice);
+\draw[arrow] (centre) -- (dice);
+\end{tikzpicture}%
+}
+\caption{Opérations OLAP mobilisées dans les dashboards}
+\label{fig:olap-operations}
+\sourcefigure{élaboration propre à partir des usages Power BI du projet}
+\end{figure}

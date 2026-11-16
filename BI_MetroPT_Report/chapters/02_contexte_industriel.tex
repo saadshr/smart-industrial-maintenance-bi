@@ -1,0 +1,52 @@
+\chapter{Contexte industriel et unité de production d'air}
+
+\section{Le métro et ses fonctions pneumatiques}
+Un métro est un système de transport collectif composé de véhicules, d'une infrastructure de voie, de stations, d'une alimentation électrique, d'un système de signalisation et de fonctions de supervision. Le véhicule doit assurer simultanément la traction, le freinage, la communication, la sécurité des portes et le confort des passagers. Certaines de ces fonctions utilisent de l'air comprimé, stocké puis distribué à une pression adaptée.
+
+Dans le contexte décrit par la documentation MetroPT, l'air comprimé est associé à des fonctions telles que le freinage, l'ouverture et la fermeture des portes, le nivellement du véhicule et l'absorption de chocs. Une disponibilité insuffisante peut donc provoquer des restrictions de fonctionnement ou une immobilisation, même si la panne initiale se situe dans le compresseur.
+
+\section{Fonctionnement général d'une APU}
+L'Air Production Unit transforme l'air ambiant en air comprimé traité. Le moteur électrique entraîne le compresseur. L'air entre par le circuit d'admission, est comprimé, puis passe par des éléments de séparation, de refroidissement et de séchage avant d'être stocké dans des réservoirs et envoyé vers le réseau pneumatique. Des vannes, des pressostats et des capteurs permettent de réguler le fonctionnement et de surveiller les conditions d'exploitation.
+
+\begin{figure}[H]
+\centering
+\resizebox{0.94\textwidth}{!}{%
+\begin{tikzpicture}[node distance=1.55cm, every node/.style={font=\small}, block/.style={draw=navy, fill=lightnavy, rounded corners, align=center, minimum width=2.8cm, minimum height=0.8cm}, arrow/.style={->, thick, color=gold}]
+\node[block] (air) {Air ambiant\\et filtre};
+\node[block, right of=air, xshift=1.2cm] (comp) {Compresseur\\et moteur};
+\node[block, right of=comp, xshift=1.2cm] (sep) {Refroidissement\\et séparation};
+\node[block, right of=sep, xshift=1.2cm] (dry) {Sécheur, filtres\\et régulation};
+\node[block, right of=dry, xshift=1.2cm] (tank) {Réservoirs\\d'air};
+\node[block, below of=tank] (network) {Distribution\\pneumatique};
+\draw[arrow] (air) -- (comp);
+\draw[arrow] (comp) -- (sep);
+\draw[arrow] (sep) -- (dry);
+\draw[arrow] (dry) -- (tank);
+\draw[arrow] (tank) -- (network);
+\draw[arrow] (network.south) |- node[right,align=left]{pression, température,\\courant et états} (comp.south);
+\end{tikzpicture}
+}%
+\caption{Schéma fonctionnel générique de l'APU étudiée}
+\label{fig:apu}
+\sourcefigure{élaboration propre à partir de la description MetroPT-3 \cite{metroDescription}}
+\end{figure}
+
+\section{Composants et interactions}
+\subsection{Composants confirmés ou documentés}
+Le dataset confirme directement la présence logique d'un compresseur, de réservoirs, d'un panneau pneumatique, de tours de séchage et de plusieurs signaux de commande. Les variables TP2, TP3, H1, DV\_pressure, Reservoirs, Oil\_temperature et Motor\_current correspondent à des mesures analogiques. Les variables COMP, DV\_eletric, Towers, MPG, LPS, Pressure\_switch, Oil\_level et Caudal\_impulses correspondent à des signaux numériques observés dans le CSV. La documentation locale ne permet pas de transformer chaque élément générique d'une APU en composant physiquement vérifié sur le véhicule.
+
+\subsection{Compresseur et moteur électrique}
+Le compresseur augmente la pression de l'air. Le moteur fournit le couple nécessaire à cette compression. TP2 décrit la pression au niveau du compresseur et Motor\_current fournit le courant d'une phase du moteur triphasé. Une hausse du courant peut être cohérente avec un effort accru, mais elle ne constitue pas, isolément, une preuve de surcharge ou de défaillance.
+
+\subsection{Panneau pneumatique, réservoirs et séchage}
+TP3 est la pression produite au niveau du panneau pneumatique et Reservoirs la pression en aval des réservoirs. H1 et DV\_pressure décrivent des variations associées à la décharge et au séchage. Les réservoirs amortissent les variations entre production et consommation. Le sécheur réduit l'humidité, ce qui protège le réseau et les composants pneumatiques.
+
+\subsection{Vannes, pressostats et signaux numériques}
+COMP, DV\_eletric, MPG, LPS et Pressure\_switch sont des états électriques ou de commande. Towers décrit un état de tour de séchage. Oil\_level indique l'état du niveau d'huile et Caudal\_impulses les impulsions associées au débit d'air. Un état égal à 1 est un état du signal ; il ne doit pas être traduit automatiquement en panne.
+
+\begin{precaution}
+Le rapport utilise une architecture industrielle générique pour expliquer les interactions, mais réserve les affirmations spécifiques aux champs et descriptions réellement disponibles. Aucun composant non documenté n'est présenté comme une preuve de configuration exacte du véhicule.
+\end{precaution}
+
+\section{Maintenance et décision}
+La maintenance corrective intervient après une défaillance. La maintenance préventive planifie une intervention selon une échéance ou une règle. La maintenance prédictive cherche à estimer un risque à partir de signaux et d'un historique validé. Le présent projet se situe en amont : il rend l'historique observable et comparable. Une extension prédictive demanderait des labels, des historiques d'interventions, une définition de l'horizon de prédiction et une validation hors échantillon.

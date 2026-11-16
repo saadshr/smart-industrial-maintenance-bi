@@ -67,6 +67,10 @@ Le dataset ne doit pas être confondu avec d'autres datasets ou versions MetroPT
 
 Le pipeline Python utilise la bibliothèque standard et lit le CSV local sans le modifier. Les fichiers produits sous data/processed/ restent ignorés par Git.
 
+## Rapport académique LaTeX
+
+Le dossier [BI_MetroPT_Report](./BI_MetroPT_Report) contient le rapport modulaire préparé à partir du template du précédent rapport ML : sources LaTeX, bibliographie, logos ENSAM/UM5 et captures réelles des trois pages Power BI. Aucun PDF compilé n'est revendiqué tant qu'une installation LaTeX n'a pas été disponible et vérifiée.
+
 ## Architecture décisionnelle envisagée
 
 L'architecture suivante constitue une cible de conception et non un pipeline implémenté :

@@ -1,0 +1,28 @@
+\chapter{Annexes techniques}
+
+\section{Fichiers contrôlés}
+\begin{tabularx}{\textwidth}{lX}
+\toprule
+\textbf{Artefact} & \textbf{Rôle}\\
+\midrule
+scripts/prepare\_powerbi\_data.py & Préparation reproductible des quatre tables.\\
+powerquery/FactSensorObservation.pq & Import M et association temporelle.\\
+powerquery/FactFailurePeriod.pq & Définition des quatre périodes externes.\\
+powerquery/DimDate.pq & Dimension calendrier.\\
+powerquery/DimTime.pq & Dimension seconde de la journée.\\
+dax/measures.dax & Sept mesures DAX préparées.\\
+powerbi/Smart\_Industrial\_Maintenance.pbix & Rapport Power BI inspecté.\\
+\bottomrule
+\end{tabularx}
+
+\section{Relations Power BI}
+\begin{enumerate}
+\item DimDate[DateKey] vers FactSensorObservation[DateKey], active ;
+\item DimTime[TimeKey] vers FactSensorObservation[TimeKey], active ;
+\item DimDate[DateKey] vers FactFailurePeriod[StartDateKey], active ;
+\item DimDate[DateKey] vers FactFailurePeriod[EndDateKey], inactive.
+\end{enumerate}
+Les filtres sont à sens unique des dimensions vers les faits. Aucune relation directe entre les deux faits n'est requise.
+
+\section{Validation de compilation}
+Le dossier est organisé pour une compilation pdfLaTeX avec Biber. La validation finale a été effectuée avec MiKTeX 26.5 en appelant directement ses exécutables locaux, sans modifier le PATH Windows. Le PDF compilé contient 34 pages et a été contrôlé dans le lecteur PDF ; les avertissements restants sont non bloquants et limités à la composition d'un identifiant de variable et à un alignement de tableau.

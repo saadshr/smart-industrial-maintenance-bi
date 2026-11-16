@@ -1,0 +1,33 @@
+\chapter{Introduction générale}
+
+\section{Contexte et motivation}
+Les systèmes ferroviaires modernes reposent sur un ensemble de fonctions mécaniques, électriques, électroniques et pneumatiques qui doivent fonctionner de manière coordonnée. Dans un métro, l'air comprimé intervient notamment dans le freinage, l'ouverture des portes, la suspension ou la régulation de certains équipements. Une unité de production d'air dégradée ne constitue donc pas seulement un problème local de compresseur : elle peut réduire la marge opérationnelle d'un véhicule et imposer une intervention non planifiée.
+
+La maintenance industrielle évolue d'une logique corrective vers une logique fondée sur l'observation. Les capteurs permettent de conserver un historique des pressions, températures, courants et états de commande. Cet historique peut être exploité pour décrire le fonctionnement, comparer des périodes et examiner le contexte de défaillances déjà documentées. Il ne suffit cependant pas, à lui seul, à prouver une causalité ou à produire un modèle prédictif validé.
+
+\section{Problématique}
+Le dataset MetroPT-3 regroupe des mesures issues d'une unité de production d'air d'un train du métro de Porto. La difficulté décisionnelle est double. D'une part, les données de capteurs sont nombreuses, temporelles et hétérogènes. D'autre part, les quatre périodes de défaillance sont des informations externes au CSV : elles décrivent des intervalles, et non une étiquette de panne répétée sur chaque observation.
+
+La problématique retenue est donc la suivante : comment transformer un historique IoT industriel en un modèle décisionnel fiable, traçable et exploitable par Power BI, tout en conservant le grain réel des observations et la distinction entre mesure, état numérique et événement documenté ?
+
+\section{Objectifs}
+Le projet vise à :
+\begin{itemize}
+\item auditer le schéma et la qualité du CSV officiel ;
+\item construire une constellation dimensionnelle avec deux faits et des dimensions temporelles conformes ;
+\item préparer les transformations avec Power Query/M et un pipeline reproductible ;
+\item implémenter des mesures DAX simples et vérifiables ;
+\item associer les observations aux quatre intervalles par des bornes temporelles inclusives ;
+\item analyser trois pages Power BI existantes à partir de leurs captures réelles ;
+\item discuter les résultats sans inventer de coût, de disponibilité, de MTTR ou de prédiction.
+\end{itemize}
+
+\section{Méthode et périmètre}
+Le rapport distingue les faits observés, les interprétations techniques et les perspectives. Les résultats numériques repris dans les chapitres proviennent de l'audit local, des tables préparées et des captures Power BI présentes dans le dépôt. Le fichier PBIX est mentionné comme artefact applicatif ; la validation visuelle détaillée repose sur les trois captures disponibles. Les illustrations de dashboards sont des captures du projet, tandis que le schéma d'architecture est une production vectorielle propre.
+
+\begin{pedagogie}
+Une observation située dans une fenêtre de défaillance n'est pas une nouvelle panne. Elle reste une ligne du fait des capteurs, associée à un identifiant d'intervalle pour faciliter l'analyse.
+\end{pedagogie}
+
+\section{Organisation du rapport}
+Le premier chapitre décrit le système ferroviaire et l'APU. Le deuxième présente le dataset et ses variables. Le troisième rappelle les notions de Business Intelligence, Data Warehouse, ETL et OLAP. Les chapitres suivants détaillent le modèle, les transformations, les dashboards, les résultats, les limites et les perspectives.

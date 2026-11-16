@@ -1,0 +1,76 @@
+\chapter{Extraction, transformation et préparation}
+
+\section{Sources et environnement}
+Les sources sont le CSV local, le PDF de description, les documents d'audit et le modèle Power BI. Les scripts suivis sont prepare\_powerbi\_data.py, les requêtes du dossier powerquery et measures.dax. Le pipeline Python utilise la bibliothèque standard et lit le CSV par flux. Les fichiers dérivés restent dans data/processed, répertoire exclu du versionnement.
+
+\section{Contrôles de qualité}
+L'audit local a vérifié le nombre de lignes, les colonnes, les types, les timestamps, les valeurs nulles, les doublons, la monotonie temporelle et les écarts. Le résultat est : 1\,516\,948 lignes, 17 colonnes, zéro échec de parsing du timestamp, zéro valeur nulle, zéro groupe de doublons complets, zéro timestamp répété et une cadence modale de 10 secondes. Les trous sont conservés comme une propriété du signal d'acquisition.
+
+\begin{table}[H]
+\centering
+\caption{Contrôles de qualité appliqués avant le chargement}
+\label{tab:quality-controls}
+\begin{tabularx}{0.94\textwidth}{>{\bfseries}l X l}
+\toprule
+Contrôle & Règle appliquée & Résultat\\
+\midrule
+Structure & Colonnes et types attendus & 17 colonnes conformes\\
+Complétude & Recherche de valeurs nulles & 0 valeur nulle\\
+Temporalité & Parsing, doublons et intervalles & 0 timestamp répété ; cadence modale 10 s\\
+Événements & Bornes inclusives des quatre rapports & 29\,954 observations rattachées\\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\section{Transformation Power Query}
+La requête principale suit les étapes ci-dessous :
+\begin{lstlisting}[language={},caption={Extrait de la requête M FactSensorObservation}]
+Source = Csv.Document(
+    File.Contents(pSourceFolder & "\MetroPT3(AirCompressor).csv"),
+    [Delimiter=",", Encoding=65001, QuoteStyle=QuoteStyle.None]
+),
+PromotedHeaders = Table.PromoteHeaders(Source, [PromoteAllScalars=true]),
+Renamed = Table.RenameColumns(PromotedHeaders,
+    {{"Unnamed: 0", "SourceRowKey"},
+     {"timestamp", "ObservationTimestamp"}}),
+AddObservationKey = Table.AddIndexColumn(
+    Typed, "ObservationKey", 1, 1, Int64.Type),
+\end{lstlisting}
+La première instruction rend le chemin configurable. PromoteHeaders utilise la première ligne comme noms. RenameColumns conserve la traçabilité tout en adoptant les noms du modèle. AddIndexColumn crée une clé technique de fait.
+
+DateKey est calculée sous la forme AAAAMMJJ. TimeKey est le nombre de secondes depuis minuit. Enfin, quatre conditions if comparent ObservationTimestamp aux bornes exactes. Les comparaisons sont inclusives et la valeur est null hors période.
+
+\section{Chargement et reproductibilité}
+Le pipeline Python produit quatre fichiers exploitables. Sa sortie contrôlée est :
+\begin{itemize}
+\item FactSensorObservation : 1\,516\,948 lignes ;
+\item FactFailurePeriod : 4 lignes ;
+\item DimDate : 214 lignes ;
+\item DimTime : 86\,400 lignes.
+\end{itemize}
+Le CSV source conserve son empreinte SHA-256 auditée :
+\begin{center}
+\small\texttt{DB30CCB4EA402E3C8BF2C99DB06E288D4F2A772F6928F9DBE26A920D69793E24}
+\end{center}
+
+\section{Mesures DAX}
+Les sept mesures préparées sont :
+\begin{lstlisting}[language={},caption={Catalogue DAX du projet}]
+Nombre observations =
+    COUNTROWS(FactSensorObservation)
+Pression moyenne TP3 (bar) =
+    AVERAGE(FactSensorObservation[TP3])
+Température moyenne huile (°C) =
+    AVERAGE(FactSensorObservation[Oil_temperature])
+Courant moyen moteur (A) =
+    AVERAGE(FactSensorObservation[Motor_current])
+Nombre incidents documentés =
+    DISTINCTCOUNT(FactFailurePeriod[FailurePeriodKey])
+Observations dans incidents documentés =
+    CALCULATE([Nombre observations],
+              FactSensorObservation[FailurePeriodKey] <> BLANK())
+Taux observations incidentées =
+    DIVIDE([Observations dans incidents documentés],
+           [Nombre observations])
+\end{lstlisting}
+COUNTROWS compte les observations du contexte courant. AVERAGE résume une mesure instantanée sans la sommer. DISTINCTCOUNT compte les rapports et non leurs observations. CALCULATE conserve le contexte et filtre les lignes incidentées. DIVIDE protège le calcul contre un dénominateur nul.
